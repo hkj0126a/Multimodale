@@ -5,6 +5,10 @@
  */
 package multimodal;
 
+import fr.dgac.ivy.Ivy;
+import fr.dgac.ivy.IvyApplicationAdapter;
+import fr.dgac.ivy.IvyClient;
+
 /**
  *
  * @author JeanLuc
@@ -15,7 +19,7 @@ public class Multimodal {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        
     }
     
 }
