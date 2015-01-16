@@ -21,35 +21,46 @@ public class Geste {
     private int squareSize;
     private final static int NB_POINTS = 50;
     private final static int INFINITY = 5000000;
-    private String command; 
+    private String command;
     private boolean isLearned = false;
 
     public Geste(List<Point> initialPoints, int squareSizep) {
         myInitialPoints = initialPoints;
         myPoints = new ArrayList<>();
-        squareSize = squareSizep; 
+        squareSize = squareSizep;
     }
-    
+
     public Geste(List<Point> initialPoints, int squareSizep, String cmd) {
-        this(initialPoints,squareSizep);
+        this(initialPoints, squareSizep);
         command = cmd;
         isLearned = true;
     }
-    
-    
+
     public void addPoint(int x, int y) {
-        myInitialPoints.add(new Point(x,y));
+        myInitialPoints.add(new Point(x, y));
     }
-    
-    
+
     public void compute() {
         pathLength();
         //echantillonage
         resample();
         //rotation
+        myPoints.add(Centroid(myPoints));
         myPoints = rotateToZero();
         //recadrage
-        myPoints = scaleToSquare(myPoints,squareSize );
+        Rectangle B = BoundingBox(myPoints);
+        myPoints = scaleToSquare(myPoints, squareSize);
+        //Centrage
+        int panelSize = 200;
+        myPoints = translateToOrigin(myPoints, panelSize);
+        Point p = new Point((int) B.X, (int) B.Y);
+        myPoints.add(p);
+        p = new Point((int) (B.X + B.Width), (int) (B.Y + B.Height));
+        myPoints.add(p);
+        p = new Point((int) B.X, (int) (B.Y + B.Height));
+        myPoints.add(p);
+        p = new Point((int) (B.X + B.Width), (int) B.Y);
+        myPoints.add(p);
     }
 
     public void resample() {
@@ -101,7 +112,7 @@ public class Geste {
 
     Point Centroid(List<Point> points) {
         Point centriod = new Point(0, 0);
-        for (int i = 1; i < points.size(); i++) {
+        for (int i = 0; i < points.size(); i++) {
             centriod.x += points.get(i).x;
             centriod.y += points.get(i).y;
         }
@@ -123,7 +134,6 @@ public class Geste {
                     * Math.cos(angle) + c.y);
             newPoints.add(new Point(x, y));
         }
-
         return newPoints;
     }
 
@@ -138,9 +148,7 @@ public class Geste {
             newpoints.add(new Point(qx, qy));
 
         }
-        for (int i = 0; i < points.size(); i++) {
 
-        }
         return newpoints;
     }
 
@@ -159,14 +167,14 @@ public class Geste {
         return new Rectangle(minX, minY, maxX - minX, maxY - minY);
     }
 
-    public List<Point> translateToOrigin(List<Point> points) {
+    public List<Point> translateToOrigin(List<Point> points, int panelSize) {
         Point c = Centroid(points);
         List<Point> newpoints = new ArrayList<>();
-        
+
         for (Point pt : points) {
             int qx = pt.x - c.x;
             int qy = pt.y - c.y;
-            newpoints.add(new Point(qx, qy));
+            newpoints.add(new Point(qx + panelSize, qy + panelSize));
         }
         return newpoints;
     }
@@ -185,16 +193,17 @@ public class Geste {
     public String getCommand() {
         return command;
     }
-    
+
     public void setCommand(String cmd) {
         command = cmd;
     }
-    
+
     public boolean isLearned() {
         return isLearned;
     }
-    
+
     private class Rectangle {
+
         float X;
         float Y;
         float Width;
