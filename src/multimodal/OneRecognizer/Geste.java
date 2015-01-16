@@ -8,6 +8,7 @@ package multimodal.OneRecognizer;
 import java.util.List;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Stack;
 
 /**
  *
@@ -21,61 +22,79 @@ public class Geste {
     private int squareSize;
     private final static int NB_POINTS = 50;
     private final static int INFINITY = 5000000;
-    private String command; 
+    private String command;
     private boolean isLearned = false;
+
+    public Geste() {
+        myInitialPoints = new ArrayList<>();
+        myPoints = new ArrayList<>();
+        squareSize = NB_POINTS;
+    }
 
     public Geste(List<Point> initialPoints, int squareSizep) {
         myInitialPoints = initialPoints;
         myPoints = new ArrayList<>();
-        squareSize = squareSizep; 
+        squareSize = squareSizep;
     }
-    
+
     public Geste(List<Point> initialPoints, int squareSizep, String cmd) {
-        this(initialPoints,squareSizep);
+        this(initialPoints, squareSizep);
         command = cmd;
         isLearned = true;
     }
-    
-    
+
     public void addPoint(int x, int y) {
-        myInitialPoints.add(new Point(x,y));
+        myInitialPoints.add(new Point(x, y));
     }
-    
-    
+
     public void compute() {
         pathLength();
         //echantillonage
-        resample();
+        //resample();
+        myPoints = resample(myInitialPoints, NB_POINTS);
+        
         //rotation
         myPoints = rotateToZero();
         //recadrage
-        myPoints = scaleToSquare(myPoints,squareSize );
+        myPoints = scaleToSquare(myPoints, squareSize);
     }
 
-    public void resample() {
-        int distanceBetweenToPoints = longueurTrace / NB_POINTS - 1;
-        int distanceParcourue = 0;
-        getMyPoints().add(myInitialPoints.get(0));
-        double d = 0;
-
-        for (int i = 1; i < myInitialPoints.size(); i++) {
-            Point prevPoint = myInitialPoints.get(i - 1);
-            Point currentPoint = myInitialPoints.get(i);
-            d = currentPoint.distance(prevPoint.x, prevPoint.y);
-            if (distanceParcourue + d >= distanceBetweenToPoints) {
-                int x = (int) (prevPoint.x + ((distanceBetweenToPoints - distanceParcourue) / d)
-                        * (currentPoint.x - prevPoint.x));
-                int y = (int) (prevPoint.y + ((distanceBetweenToPoints - distanceParcourue) / d)
-                        * (currentPoint.y - prevPoint.y));
-                Point suivant = new Point(x, y);
-                getMyPoints().add(suivant);
-                myInitialPoints.add(i, suivant);
-                distanceParcourue = 0;
-            } else {
-                distanceParcourue += d;
-            }
-
+    List<Point> resample(List<Point> points, int n) {
+        double I = pathLength(points) / ((double) n - 1.0);
+        double D = 0.0;
+        List<Point> newpoints = new ArrayList<>();
+        Stack stack = new Stack();
+        for (int i = 0; i < points.size(); i++) {
+            stack.push(points.get(points.size() - 1 - i));
         }
+
+        while (!stack.empty()) {
+            Point pt1 = (Point) stack.pop();
+
+            if (stack.empty()) {
+                newpoints.add(pt1);
+                continue;
+            }
+            Point pt2 = (Point) stack.peek();
+            double d = pt1.distance(pt2);
+            if ((D + d) >= I) {
+                int qx = (int)(pt1.x + ((I - D) / d) * (pt2.x - pt1.x));
+                int qy = (int)(pt1.y + ((I - D) / d) * (pt2.y - pt1.y));
+                
+                Point q = new Point(qx, qy);
+                
+                newpoints.add(q);
+                stack.push(q);
+                D = 0.0;
+            } else {
+                D += d;
+            }
+        }
+
+        if (newpoints.size() == (n - 1)) {
+            newpoints.add(points.get(points.size()-1));
+        }
+        return newpoints;
 
     }
 
@@ -85,7 +104,6 @@ public class Geste {
             Point prevPoint = myInitialPoints.get(i - 1);
             Point currentPoint = myInitialPoints.get(i);
             longueurTrace += currentPoint.distance(prevPoint.x, prevPoint.y);
-
         }
     }
 
@@ -162,7 +180,7 @@ public class Geste {
     public List<Point> translateToOrigin(List<Point> points) {
         Point c = Centroid(points);
         List<Point> newpoints = new ArrayList<>();
-        
+
         for (Point pt : points) {
             int qx = pt.x - c.x;
             int qy = pt.y - c.y;
@@ -185,16 +203,28 @@ public class Geste {
     public String getCommand() {
         return command;
     }
-    
+
     public void setCommand(String cmd) {
         command = cmd;
     }
-    
+
     public boolean isLearned() {
         return isLearned;
     }
-    
+
+    private double pathLength(List<Point> points) {
+        double longueur = 0;
+        for (int i = 1; i < points.size(); i++) {
+            Point prevPoint = points.get(i - 1);
+            Point currentPoint = points.get(i);
+            longueur += currentPoint.distance(prevPoint.x, prevPoint.y);
+        }
+        
+        return longueur;
+    }
+
     private class Rectangle {
+
         float X;
         float Y;
         float Width;

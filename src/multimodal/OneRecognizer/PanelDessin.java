@@ -44,33 +44,16 @@ public class PanelDessin extends javax.swing.JPanel {
         isPanelLearning = vb;
     }
     
-    public void setGestListener (GesteListener o){
+    public void setGestureListener (GesteListener o){
         obs = o;
     }
 
     
     public void showGeste(List<Point> pts) {
         points = pts;
-        
-        for (Point pt : points) {
-            System.out.println("POINT : "+pt.x+" ; "+pt.y);
-        } 
-        
+       
         repaint();
     }
-    
-    @Override
-    public void setPreferredSize(Dimension preferredSize) {
-        super.setPreferredSize(preferredSize); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void setMinimumSize(Dimension minimumSize) {
-        super.setMinimumSize(minimumSize); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    
-    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -109,6 +92,8 @@ public class PanelDessin extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
+        points.clear();
+        repaint();
         points.add( new Point(evt.getX(),evt.getY()));
     }//GEN-LAST:event_formMousePressed
 
@@ -116,7 +101,7 @@ public class PanelDessin extends javax.swing.JPanel {
         
         points.add( new Point(evt.getX(),evt.getY()));
         Geste geste = new Geste(points, SQUARE_SIZE);
-        
+
         fireObservers(geste);
         
         points.clear();
@@ -126,8 +111,6 @@ public class PanelDessin extends javax.swing.JPanel {
     private void formMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseDragged
         points.add( new Point(evt.getX(),evt.getY()));
         repaint();
-        
-        
     }//GEN-LAST:event_formMouseDragged
 
 

@@ -8,6 +8,8 @@ package multimodal.OneRecognizer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -18,11 +20,10 @@ import javax.swing.JOptionPane;
  * @author hakje
  */
 public class Icar extends javax.swing.JFrame implements GesteListener {
+
     private List<Geste> learnedGest = new ArrayList<>();
     private PanelDessin panelLearning, panelReco;
-    
-    
-    
+
     /**
      * Creates new form Icar
      */
@@ -31,18 +32,18 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
         panelLearning = new PanelDessin();
         panelReco = new PanelDessin();
 
-        jPanel2.add(panelLearning, BorderLayout.EAST);        
-        jPanel2.add(panelReco, BorderLayout.WEST);        
-        panelLearning.setBorder(BorderFactory.createLineBorder(Color.black));
+        jPanel3.add(panelReco);
+        jPanel4.add(panelLearning);
+        panelLearning.setBorder(BorderFactory.createLineBorder(Color.red));
         panelReco.setBorder(BorderFactory.createLineBorder(Color.blue));
         setSize(800, 500);
-        
+
         panelLearning.setPanelLearning(true);
-        panelLearning.setGestListener(this);
-        
-        panelReco.setPanelLearning(true);
-        panelReco.setGestListener(this);
-        
+        panelLearning.setGestureListener(this);
+
+        panelReco.setPanelLearning(false);
+        panelReco.setGestureListener(this);
+
     }
 
     /**
@@ -56,39 +57,32 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
 
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabelRecognition = new javax.swing.JLabel();
-        jPanel3 = new javax.swing.JPanel();
-        jTextFieldApprentissage = new javax.swing.JTextField();
-        jButtonValider = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setLayout(new java.awt.BorderLayout());
 
         jPanel2.setLayout(new java.awt.GridLayout(1, 0));
+
+        jPanel3.setLayout(new java.awt.GridLayout(1, 0));
+        jPanel2.add(jPanel3);
+
+        jPanel4.setLayout(new java.awt.GridLayout());
+        jPanel2.add(jPanel4);
+
         jPanel1.add(jPanel2, java.awt.BorderLayout.CENTER);
 
+        jPanel5.setBackground(new java.awt.Color(255, 204, 204));
         jPanel5.setLayout(new java.awt.GridLayout(1, 0));
 
+        jLabelRecognition.setBackground(new java.awt.Color(255, 204, 204));
         jLabelRecognition.setText("Geste reconnu");
         jPanel5.add(jLabelRecognition);
         jLabelRecognition.getAccessibleContext().setAccessibleName("labelRecognition");
-
-        jPanel3.setLayout(new java.awt.GridLayout(1, 0));
-
-        jTextFieldApprentissage.setText("Tapez le geste à apprendre");
-        jTextFieldApprentissage.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextFieldApprentissageActionPerformed(evt);
-            }
-        });
-        jPanel3.add(jTextFieldApprentissage);
-
-        jButtonValider.setText("Valider");
-        jPanel3.add(jButtonValider);
-
-        jPanel5.add(jPanel3);
 
         jPanel1.add(jPanel5, java.awt.BorderLayout.SOUTH);
 
@@ -100,34 +94,72 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextFieldApprentissageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldApprentissageActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldApprentissageActionPerformed
-
-    
     @Override
     public void gesteFinished(Geste geste, boolean isLearning) {
-        if(isLearning) {
+        geste.compute();
+        
+        if (isLearning) {
             //stocker
-            String retour = JOptionPane.showInputDialog(this, "le message", "VALEUR INITIALE");
+            String retour = JOptionPane.showInputDialog(this, "Veuillez saisir la commande correspondante", "carre");
+
+            System.out.println("NOM COMMAND : "+retour);
             
-            geste.setCommand(retour);
-            geste.compute();
-            learnedGest.add(geste);
-            
-            panelReco.showGeste(geste.getMyPoints());
-        }
+            if(!retour.equals("null")) {
+                geste.setCommand(retour);
+                learnedGest.add(geste);
+            }
+
+            //panelReco.showGeste(geste.getMyPoints());
+        } 
         else {
             //comparer
+            recognizeGesture(geste);
         }
     }
-    
+
+    private void recognizeGesture(Geste geste) {
+        Geste reco = new Geste();
+        int bestDistance = 0;
+        String cmd="";
+        
+        for (Geste learnedGest : learnedGest) {                  
+            int sommeDistance = 0;
+            for (int i = 0; i < learnedGest.getMyPoints().size(); i++) {
+                sommeDistance += geste.getMyPoints().get(i)
+                        .distance(learnedGest.getMyPoints().get(i).x,
+                                learnedGest.getMyPoints().get(i).y);
+            }
+
+            if (bestDistance == 0) {
+                reco = learnedGest;
+                bestDistance = sommeDistance;
+            } else {
+                if (sommeDistance < bestDistance ) {
+                    reco = learnedGest;
+                    bestDistance = sommeDistance;
+                }
+            }
+            System.out.println("BEST DISTANCE : "+bestDistance);
+            
+        }
+        
+        if(bestDistance > 8000) {
+            System.out.println("DANS IF : "+bestDistance);
+            cmd = "Geste non reconnu";
+        } 
+        else {
+            cmd=reco.getCommand();
+        }
+        
+        jLabelRecognition.setText("Geste reconnu : " + reco.getCommand());
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -163,16 +195,14 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
         });
     }
 
-   
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButtonValider;
     private javax.swing.JLabel jLabelRecognition;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
-    private javax.swing.JTextField jTextFieldApprentissage;
     // End of variables declaration//GEN-END:variables
 
-  
 }
