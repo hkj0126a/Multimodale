@@ -5,9 +5,8 @@
  */
 package multimodal;
 
-import fr.dgac.ivy.Ivy;
-import fr.dgac.ivy.IvyApplicationAdapter;
-import fr.dgac.ivy.IvyClient;
+import fr.dgac.ivy.IvyException;
+import multimodal.ivyControl.IvyControl;
 
 /**
  *
@@ -18,8 +17,8 @@ public class Multimodal {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        
+    public static void main(String[] args) throws IvyException {
+        new IvyControl();
     }
     
 }
