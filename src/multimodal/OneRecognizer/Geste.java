@@ -75,6 +75,7 @@ public class Geste {
                 newpoints.add(pt1);
                 continue;
             }
+            
             Point pt2 = (Point) stack.peek();
             double d = pt1.distance(pt2);
             if ((D + d) >= I) {
