@@ -80,6 +80,7 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
         jPanel5.setLayout(new java.awt.GridLayout(1, 0));
 
         jLabelRecognition.setBackground(new java.awt.Color(255, 204, 204));
+        jLabelRecognition.setFont(new java.awt.Font("Segoe UI Light", 0, 24)); // NOI18N
         jLabelRecognition.setText("Geste reconnu");
         jPanel5.add(jLabelRecognition);
         jLabelRecognition.getAccessibleContext().setAccessibleName("labelRecognition");
@@ -110,7 +111,7 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
 
             System.out.println("NOM COMMAND : "+retour);
             
-            if(!retour.equals("null")) {
+            if(retour != null) {
                 geste.setCommand(retour);
                 learnedGest.add(geste);
             }
@@ -123,6 +124,13 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
         }
     }
 
+    @Override
+    public void toLessPoint() {
+        jLabelRecognition.setText("Geste reconnu : geste trop petit ! t'as fais exprés ou quoi ? ");
+    }
+
+    
+    
     private void recognizeGesture(Geste geste) {
         Geste reco = new Geste();
         int bestDistance = 0;
@@ -157,7 +165,7 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
             cmd=reco.getCommand();
         }
         
-        jLabelRecognition.setText("Geste reconnu : " + reco.getCommand());
+        jLabelRecognition.setText("Geste reconnu : " + cmd);
     }
 
     /**

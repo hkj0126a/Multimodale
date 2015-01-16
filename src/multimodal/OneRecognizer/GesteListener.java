@@ -11,4 +11,6 @@ package multimodal.OneRecognizer;
  */
 public interface GesteListener {
     public void gesteFinished(Geste geste, boolean isLearning);
+
+    public void toLessPoint();
 }

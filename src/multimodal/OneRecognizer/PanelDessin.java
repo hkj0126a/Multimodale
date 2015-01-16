@@ -100,10 +100,13 @@ public class PanelDessin extends javax.swing.JPanel {
     private void formMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseReleased
         
         points.add( new Point(evt.getX(),evt.getY()));
-        Geste geste = new Geste(points, SQUARE_SIZE);
-
-        fireObservers(geste);
-        
+        if(points.size() > 20) {
+            Geste geste = new Geste(points, SQUARE_SIZE);
+            fireObservers(geste);
+        } else {
+            fireToLessPoints();
+        }
+ 
         points.clear();
         
     }//GEN-LAST:event_formMouseReleased
@@ -119,5 +122,9 @@ public class PanelDessin extends javax.swing.JPanel {
 
     private void fireObservers(Geste geste) {
         obs.gesteFinished(geste, isPanelLearning);
+    }
+
+    private void fireToLessPoints() {
+        obs.toLessPoint();
     }
 }
