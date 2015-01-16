@@ -19,9 +19,9 @@ import java.util.List;
 public class PanelDessin extends javax.swing.JPanel {
     private List<Point> points;
     private GesteListener obs;
-    private static final int SQUARE_SIZE = 250;
+    private static final int SQUARE_SIZE = 100;
     private boolean isPanelLearning = false;
-  
+
     /**
      * Creates new form PanelDessin
      */
@@ -33,11 +33,11 @@ public class PanelDessin extends javax.swing.JPanel {
     @Override
     public void paint(Graphics g) {
         super.paint(g); //To change body of generated methods, choose Tools | Templates.
-        
+
         g.setColor(Color.red);
         for (Point pt : points) {
             g.fillOval(pt.x, pt.y, 5, 5);
-        } 
+        }
     }
 
     public void setPanelLearning (boolean vb){
@@ -51,10 +51,7 @@ public class PanelDessin extends javax.swing.JPanel {
     
     public void showGeste(List<Point> pts) {
         points = pts;
-       
-        repaint();
     }
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -98,7 +95,6 @@ public class PanelDessin extends javax.swing.JPanel {
     }//GEN-LAST:event_formMousePressed
 
     private void formMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseReleased
-        
         points.add( new Point(evt.getX(),evt.getY()));
         if(points.size() > 20) {
             Geste geste = new Geste(points, SQUARE_SIZE);
@@ -106,9 +102,6 @@ public class PanelDessin extends javax.swing.JPanel {
         } else {
             fireToLessPoints();
         }
- 
-        points.clear();
-        
     }//GEN-LAST:event_formMouseReleased
 
     private void formMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseDragged
@@ -119,7 +112,6 @@ public class PanelDessin extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
-
     private void fireObservers(Geste geste) {
         obs.gesteFinished(geste, isPanelLearning);
     }
@@ -128,3 +120,4 @@ public class PanelDessin extends javax.swing.JPanel {
         obs.toLessPoint();
     }
 }
+
