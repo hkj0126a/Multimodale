@@ -10,29 +10,65 @@
                               grammar.xsd"
           xml:lang="fr-FR" root="answer" tag-format="semantics/1.0">
           
-   <rule id="answer" scope="public"> 
-    <ruleref special="GARBAGE" /> 
-    <one-of>
-      <item><ruleref uri="#yes"/>
-          <tag>out="yes";</tag></item>
-      <item><ruleref uri="#no"/>
-      <tag>out="no";</tag></item>
-    </one-of>
-    <ruleref special="GARBAGE" />
-  </rule>
+    <rule id="answer" scope="public"> 
+        <ruleref special="BE" /> 
+        <one-of>
+            <item>
+                <ruleref uri="#position"/>
+            </item>
+			<item>
+                <ruleref uri="#color"/>
+            </item>
+            <item>
+                <ruleref uri="#designationColor"/>
+            </item>
+			<item>
+                <ruleref uri="#validation"/>
+            </item>
+        </one-of>          
+        <tag>out = rules.latest().text;</tag>
+        <ruleref special="BE" />
+    </rule>
        
-   <rule id="yes">
-    <one-of>
-      <item>affirmatif</item>
-      <item>tout à fait</item>
-      <item>oui</item>
-    </one-of> 
-  </rule> 
-  <rule id="no">
-    <one-of>
-      <item>négatif</item>
-      <item>non</item>
-      <item>pas question</item>
-    </one-of>
-  </rule>
+	     
+    <rule id="position">
+		<one-of>
+			<item>ici</item>
+			<item>à cet endroit</item>
+			<item>à cette position</item>
+			<item>là</item>
+		</one-of>
+        <tag>out.text  = "ici"</tag>
+    </rule>
+  
+
+    <rule id="color">
+        <one-of>
+            <item>red</item>
+            <item>blue</item>
+            <item>green</item>
+            <item>black</item>
+            <item>white</item>
+        </one-of>
+		<tag>out.text  = "color:" + meta.current().text;</tag>
+    </rule> 
+	
+	<rule id="designationColor">
+        <one-of>
+            <item>de cette couleur</item>
+			<item>cette couleur</item>
+        </one-of>
+		<tag>out.text  = "designationcolor";</tag>
+    </rule> 
+	
+	<rule id="designationColor">
+        <one-of>
+            <item>je valide</item>
+			<item>valider</item>
+        </one-of>
+		<tag>out.text  = "validation";</tag>
+    </rule> 
+
+    
+ 
 </grammar>

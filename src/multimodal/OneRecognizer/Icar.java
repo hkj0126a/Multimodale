@@ -5,15 +5,15 @@
  */
 package multimodal.OneRecognizer;
 
-import java.awt.BorderLayout;
+import fr.dgac.ivy.IvyException;
 import java.awt.Color;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
+import multimodal.ivyControl.IvyControl;
 
 /**
  *
@@ -23,11 +23,12 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
 
     private List<Geste> learnedGest = new ArrayList<>();
     private PanelDessin panelLearning, panelReco;
+    private IvyControl ivyControl;
 
     /**
      * Creates new form Icar
      */
-    public Icar() {
+    public Icar() throws IvyException {
         initComponents();
         panelLearning = new PanelDessin();
         panelReco = new PanelDessin();
@@ -43,6 +44,8 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
 
         panelReco.setPanelLearning(false);
         panelReco.setGestureListener(this);
+        
+        ivyControl = new IvyControl();
 
     }
 
@@ -108,8 +111,6 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
         if (isLearning) {
             //stocker
             String retour = JOptionPane.showInputDialog(this, "Veuillez saisir la commande correspondante", "carre");
-
-            System.out.println("NOM COMMAND : "+retour);
             
             if(retour != null) {
                 geste.setCommand(retour);
@@ -135,13 +136,21 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
         Geste reco = new Geste();
         int bestDistance = 0;
         String cmd="";
-        
-        for (Geste learnedGest : learnedGest) {                  
+        System.out.println("Size de geste = " + geste.getMyPoints().size());
+ 
+        for (Geste learnedGest : learnedGest) {    
+            System.out.println("Size de learned = " + learnedGest.getMyPoints().size());
             int sommeDistance = 0;
             for (int i = 0; i < learnedGest.getMyPoints().size(); i++) {
-                sommeDistance += geste.getMyPoints().get(i)
+               
+                try {
+                    sommeDistance += geste.getMyPoints().get(i)
                         .distance(learnedGest.getMyPoints().get(i).x,
                                 learnedGest.getMyPoints().get(i).y);
+                } catch (java.lang.IndexOutOfBoundsException e) {
+                    System.out.println("java.lang.IndexOutOfBoundsException");
+                }
+
             }
 
             if (bestDistance == 0) {
@@ -153,18 +162,18 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
                     bestDistance = sommeDistance;
                 }
             }
-            System.out.println("BEST DISTANCE : "+bestDistance);
+            //System.out.println("BEST DISTANCE : "+bestDistance);
             
         }
         
         if(bestDistance > 8000) {
-            System.out.println("DANS IF : "+bestDistance);
             cmd = "Geste non reconnu";
         } 
         else {
             cmd=reco.getCommand();
+            
+            ivyControl.send("Multimodal gesture "+cmd);
         }
-        
         jLabelRecognition.setText("Geste reconnu : " + cmd);
     }
 
@@ -198,7 +207,11 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Icar().setVisible(true);
+                try {
+                    new Icar().setVisible(true);
+                } catch (IvyException ex) {
+                    Logger.getLogger(Icar.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }

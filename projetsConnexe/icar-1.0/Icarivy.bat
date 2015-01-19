@@ -1,1 +1,1 @@
-java -classpath bin;icar-1.0.jar;ivy-java-1.2.17.jar IcarClientIvy dictionnaires/dictionnaire_graffiti.dat
+java -classpath bin;icar-1.0.jar;ivy-java-1.2.17.jar IcarClientIvy dictionnaires/dictionnaireIcar_BE.dat
