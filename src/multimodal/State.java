@@ -9,6 +9,6 @@ package multimodal;
  *
  * @author nathan
  */
-public enum FormeEnum {
-    RECTANGLE,ELLIPSE,NOTHING
+public enum State {
+    NOTHING, CREER_COLOR, CREER_POSITION,DEPLACER_CHOISIR_FORME,DEPLACER_CHOISIR_POSITION
 }

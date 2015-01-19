@@ -3,30 +3,29 @@ package multimodal;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 
-
 public class Forme {
 
-    private FormeEnum myForme = FormeEnum.RECTANGLE;
-    private Point2D position;
-    private String color;
+    private FormeEnum myForme = FormeEnum.NOTHING;
+    private String x;
+    private String y;
     private int longueur;
     private int hauteur;
     private String couleurFond;
     private String couleurContour;
-        
-    public Forme () {
+
+    public Forme() {
         clearForme();
     }
-    
-    public void clearForme () {
-        position = new Point2D.Double();
-        position.setLocation(0, 0);
+
+    public void clearForme() {
+        x = "0";
+        y = "0";
         longueur = 100;
         hauteur = 50;
         couleurFond = "white";
         couleurContour = "black";
     }
-    
+
     /**
      * @return the myForme
      */
@@ -42,31 +41,37 @@ public class Forme {
     }
 
     /**
-     * @return the position
+     * @return the x
      */
-    public Point2D getPosition() {
-        return position;
+    public String getX() {
+        return x;
+
     }
 
     /**
-     * @param position the position to set
+     * @return the y
      */
-    public void setPosition(Point2D position) {
-        this.position = position;
+    public String getY() {
+        return y;
     }
 
     /**
-     * @return the color
+     * @return the x
      */
-    public String getColor() {
-        return color;
+    public void setX(String _x) {
+        x = _x;
     }
 
     /**
-     * @param color the color to set
+     * @return the y
      */
-    public void setColor(String color) {
-        this.color = color;
+    public void setY(String _y) {
+        y = _y;
+    }
+
+    public void setPosition(String x, String y) {
+        setX(x);
+        setY(y);
     }
 
     /**
@@ -124,6 +129,18 @@ public class Forme {
     public void setCouleurContour(String couleurContour) {
         this.couleurContour = couleurContour;
     }
-    
-    
+
+    @Override
+    public String toString() {
+        if (myForme != FormeEnum.NOTHING) {
+            String forme = (myForme == FormeEnum.ELLIPSE) ? "Ellipse" : "Rectangle";
+            return "Palette:Creer" + forme + " x=" + getX() + " y=" + getY()
+                    + " longueur=" + longueur + " hauteur=" + hauteur + " couleurFond=" + couleurFond
+                    + " couleurContour=" + couleurContour;
+        }
+        else {
+            return null;
+        }
+    }
+
 }

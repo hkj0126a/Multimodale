@@ -25,6 +25,12 @@
 			<item>
                 <ruleref uri="#validation"/>
             </item>
+            <item>
+                <ruleref uri="#deplacementChoixForme"/>
+            </item>
+            <item>
+                <ruleref uri="#deplacementChoixPosition"/>
+            </item>
         </one-of>          
         <tag>out = rules.latest().text;</tag>
         <ruleref special="GARBAGE" />
@@ -50,7 +56,7 @@
             <item>black</item>
             <item>white</item>
         </one-of>
-		<tag>out.text = "color:" + meta.current().text;</tag>
+		<tag>out.text = meta.current().text;</tag>
     </rule> 
 	
 	<rule id="designationColor">
@@ -69,6 +75,20 @@
 		<tag>out.text = "validation";</tag>
     </rule> 
 
+    <rule id="deplacementChoixForme">
+        <one-of>
+            <item>déplacer ce</item>
+            <item>déplacer cette</item> 
+        </one-of>
+        <tag>out.text = "deplacementChoixForme";</tag>
+    </rule> 
+    <rule id="deplacementChoixPosition">
+        <one-of>
+            <item>comme cela</item>
+            <item>comme ceci</item> 
+        </one-of>
+        <tag>out.text = "deplacementChoixPosition";</tag>
+    </rule> 
     
  
 </grammar>
