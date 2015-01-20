@@ -9,10 +9,6 @@ package multimodal;
  *
  * @author nathan
  */
-public enum State {
-    NOTHING, 
-    CREER_COLOR, 
-    CREER_POSITION,
-    DEPLACER_CHOISIR_FORME,
-    DEPLACER_CHOISIR_POSITION
+public enum ModalEnum {
+    NONE,GESTE,TANGIBLE,VOICE,CLICK
 }

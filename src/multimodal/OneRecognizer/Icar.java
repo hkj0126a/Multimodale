@@ -5,6 +5,7 @@
  */
 package multimodal.OneRecognizer;
 
+import fr.dgac.ivy.IvyClient;
 import fr.dgac.ivy.IvyException;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -13,13 +14,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
+import multimodal.ModalFusionListener;
 import multimodal.ivyControl.IvyControl;
 
 /**
  *
  * @author hakje
  */
-public class Icar extends javax.swing.JFrame implements GesteListener {
+public class Icar extends javax.swing.JFrame implements GesteListener, ModalFusionListener {
 
     private List<Geste> learnedGest = new ArrayList<>();
     private PanelDessin panelLearning, panelReco;
@@ -45,7 +47,7 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
         panelReco.setPanelLearning(false);
         panelReco.setGestureListener(this);
         
-        ivyControl = new IvyControl();
+        ivyControl = new IvyControl(this);
 
     }
 
@@ -225,5 +227,21 @@ public class Icar extends javax.swing.JFrame implements GesteListener {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void paletteMousePressedListener(String x, String y) {
+    }
+
+    @Override
+    public void paletteFormeInformationListener(String name, String backgroundColor, String strokeColor) {
+    }
+
+    @Override
+    public void icarListener(IvyClient client, String forme) {
+    }
+
+    @Override
+    public void sraListener(IvyClient client, String confidence, String voiceCommand) {
+    }
 
 }

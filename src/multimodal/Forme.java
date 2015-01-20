@@ -6,12 +6,13 @@ import java.awt.geom.Point2D;
 public class Forme {
 
     private FormeEnum myForme = FormeEnum.NOTHING;
+    private String name;
     private String x;
     private String y;
-    private int longueur;
-    private int hauteur;
-    private String couleurFond;
-    private String couleurContour;
+    private int width;
+    private int height;
+    private String backgroundColor;
+    private String strokeColor;
 
     public Forme() {
         clearForme();
@@ -20,10 +21,11 @@ public class Forme {
     public void clearForme() {
         x = "0";
         y = "0";
-        longueur = 100;
-        hauteur = 50;
-        couleurFond = "white";
-        couleurContour = "black";
+        width = 100;
+        height = 50;
+        backgroundColor = "white";
+        strokeColor = "black";
+        setName("");
     }
 
     /**
@@ -77,70 +79,92 @@ public class Forme {
     /**
      * @return the longueur
      */
-    public int getLongueur() {
-        return longueur;
+    public int getWidth() {
+        return width;
     }
 
     /**
      * @param longueur the longueur to set
      */
-    public void setLongueur(int longueur) {
-        this.longueur = longueur;
+    public void setWidth(int longueur) {
+        this.width = longueur;
     }
 
     /**
      * @return the hauteur
      */
-    public int getHauteur() {
-        return hauteur;
+    public int getHeight() {
+        return height;
     }
 
     /**
      * @param hauteur the hauteur to set
      */
-    public void setHauteur(int hauteur) {
-        this.hauteur = hauteur;
+    public void setHeight(int hauteur) {
+        this.height = hauteur;
     }
 
     /**
      * @return the couleurFond
      */
-    public String getCouleurFond() {
-        return couleurFond;
+    public String getBackgroundColor() {
+        return backgroundColor;
     }
 
     /**
      * @param couleurFond the couleurFond to set
      */
-    public void setCouleurFond(String couleurFond) {
-        this.couleurFond = couleurFond;
+    public void setBackgroundColor(String couleurFond) {
+        this.backgroundColor = couleurFond;
     }
 
     /**
      * @return the couleurContour
      */
-    public String getCouleurContour() {
-        return couleurContour;
+    public String getStrokeColor() {
+        return strokeColor;
     }
 
     /**
      * @param couleurContour the couleurContour to set
      */
-    public void setCouleurContour(String couleurContour) {
-        this.couleurContour = couleurContour;
+    public void setStrokeColor(String couleurContour) {
+        this.strokeColor = couleurContour;
     }
 
-    @Override
-    public String toString() {
+    public String commandToCreateFormePatern() {
         if (myForme != FormeEnum.NOTHING) {
             String forme = (myForme == FormeEnum.ELLIPSE) ? "Ellipse" : "Rectangle";
             return "Palette:Creer" + forme + " x=" + getX() + " y=" + getY()
-                    + " longueur=" + longueur + " hauteur=" + hauteur + " couleurFond=" + couleurFond
-                    + " couleurContour=" + couleurContour;
+                    + " longueur=" + width + " hauteur=" + height + " couleurFond=" + backgroundColor
+                    + " couleurContour=" + strokeColor;
         }
         else {
             return null;
         }
+    }
+    
+    public String commandToMoveFormePatern() {
+        if (myForme != FormeEnum.NOTHING) {
+            
+            return "Palette:DeplacerObjet nom="+getName()+" x="+getX()+" y="+getY();
+        }
+        else {
+            return null;
+        }
+    }
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
 }
