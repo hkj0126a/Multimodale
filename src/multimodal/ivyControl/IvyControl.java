@@ -8,11 +8,11 @@ import multimodal.ModalFusionListener;
 public class IvyControl {
 
     private Ivy bus;
-    private ModalFusionListener modal;
+    private ModalFusionListener observer;
 
     public IvyControl(ModalFusionListener m) throws IvyException {
         bus = new Ivy("IvyControler", "IvyControler Ready", null);
-        modal = m;
+        observer = m;
         sraBinder();
         icarBinder();
         paletteBinder();
@@ -26,7 +26,7 @@ public class IvyControl {
     private void sraBinder() throws IvyException {
         bus.bindMsg("^sra5 Parsed=(.*) Confidence=(.*) NP=(.*)$", (IvyClient client, String[] args) -> {
             if (args != null && args.length > 0) {
-                modal.sraListener(client, args[1], args[0]);
+                observer.sraListener(client, args[1], args[0]);
             }
         });
     }
@@ -34,7 +34,7 @@ public class IvyControl {
     private void icarBinder() throws IvyException {
         bus.bindMsg("^ICAR (.*)", (IvyClient client, String[] args) -> {
             if (args != null && args.length > 0) {
-                modal.icarListener(client, args[0]);
+                observer.icarListener(client, args[0]);
             }
         });
     }
@@ -48,7 +48,7 @@ public class IvyControl {
         bus.bindMsg("^Palette:Info nom=(.*) couleurFond=(.*) couleurContour=(.*)", (IvyClient client, String[] args) -> {
             System.out.println("Couleur FORME : " + args[1] + "   " + args[2]);
             if (args != null && args.length > 0) {
-                modal.paletteFormeInformationListener(args[0], args[1], args[2]);
+                observer.paletteFormeInformationListener(args[0], args[1], args[2]);
             }
 
         });
@@ -56,7 +56,7 @@ public class IvyControl {
         bus.bindMsg("^Palette:MousePressed x=(.*) y=(.*)", (IvyClient client, String[] args) -> {
             System.out.println("RESULTAT CLIC : " + args[0] + "  " + args[1]);
             if (args != null && args.length > 0) {
-                modal.paletteMousePressedListener(args[0], args[1]);
+                observer.paletteMousePressedListener(args[0], args[1]);
             }
         });
     }
