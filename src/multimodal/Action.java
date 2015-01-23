@@ -5,23 +5,62 @@
  */
 package multimodal;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  *
  * @author nathan
  */
 public class Action {
+
     private ModalEnum modal;
+    private ActionEnum actionEnCours;
     private String command;
-    
-    
-    public void Action () {
+    private String parameters[];
+    private boolean isComplete;
+    private Map<ActionEnum, String> actionComplementaires;
+
+    public void Action() {
         setModal(ModalEnum.NONE);
         setCommand("");
+        parameters = new String[2];
+        actionEnCours = ActionEnum.NULL;
+        actionComplementaires = new HashMap();
+        fillActionComplementaires();
     }
-    
+
+    public void fillActionComplementaires() {
+        actionComplementaires.put(ActionEnum.VOIX_ICI, "clic");
+        actionComplementaires.put(ActionEnum.VOIX_CETTECOULEUR, "clic");
+        actionComplementaires.put(ActionEnum.COMMECELA, "cam");
+    }
+
+    public String getCommandeCorrespondant(ActionEnum action) {
+        return actionComplementaires.get(action);
+    }
+
+    public List<ActionEnum> getActionCorrespondant(String commande) {
+        List<ActionEnum> actionsCorrespondants = new ArrayList();
+        for (ActionEnum action : actionComplementaires.keySet()) {
+            //Si on est dans "CETTECOULEUR", on va s'attendre à retourner un clic
+            if (actionEnCours.equals(action) && actionComplementaires.get(action).equals(commande)) {
+                actionsCorrespondants.add(action);
+            }
+        }
+        return actionsCorrespondants;
+    }
+
     public void Action(ModalEnum m, String cmd) {
         setModal(m);
         setCommand(cmd);
+    }
+
+    public void init() {
+        actionEnCours = ActionEnum.NULL;
+        parameters = new String[2];
     }
 
     /**
@@ -51,6 +90,81 @@ public class Action {
     public void setCommand(String command) {
         this.command = command;
     }
+
+    public void getComplementaryAction(String action) {
+        //ici, rectangle, comme cela
+    }
+
+    public void getComplementaryAction(ActionEnum actionMultimodale) {
+        //clic, geste
+    }
+
+    public void setIsComplete(boolean set) {
+        isComplete = set;
+    }
+
+    public boolean isComplete() {
+        return isComplete;
+    }
+
+    public void setActionEnCours(ActionEnum actionEnCours) {
+        this.actionEnCours = actionEnCours;
+        updateIsComplete();
+    }
+
+    public ActionEnum getActionEnCours() {
+        return actionEnCours;
+    }
+
+    public String[] getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(String[] parameters) {
+        this.parameters = parameters;
+        updateIsComplete();
+    }
+
+    private void updateIsComplete() {
+        if (parameters[0] != null && !actionEnCours.equals(ActionEnum.NULL)) {
+            setIsComplete(true);
+            buildCommand();
+        } else {
+            setIsComplete(false);
+        }
+    }
     
-    
+    private void buildCommand() {
+//        switch(actionEnCours) {
+//            case NULL:
+//                break;
+//            case GESTE:
+//                break;
+//            case CAMMOVE:
+//                break;
+//            case CAMCOLOR:
+//                break;
+//            case CLIC:
+//                break;
+//            case ICI:
+//                command =""; 
+//                break;
+//            case COULEUR:
+//                break;
+//            case CETTECOULEUR:
+//                command = "Palette:TesterPoint x=" + parameters[0] + " y=" + parameters[1];
+//                break;
+//            case CETTEFORME:
+//                break;
+//            case TIMER:
+//                break;
+//            case DEPLACER:
+//                break;
+//            case COMMECELA:
+//                break;
+//            default:
+//                throw new AssertionError(actionEnCours.name());
+//            
+//        }
+    }
 }

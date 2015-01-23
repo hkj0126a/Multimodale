@@ -13,12 +13,14 @@ public class Forme {
     private int height;
     private String backgroundColor;
     private String strokeColor;
+    private boolean isComplete;
 
     public Forme() {
         clearForme();
     }
 
     public void clearForme() {
+        myForme = FormeEnum.NOTHING;
         x = "0";
         y = "0";
         width = 100;
@@ -26,6 +28,24 @@ public class Forme {
         backgroundColor = "white";
         strokeColor = "black";
         setName("");
+        isComplete = false;
+    }
+
+    public boolean isComplete() {
+        return isComplete;
+    }
+
+    public void updateIsComplete() {
+        if(x.equals("0") && y.equals("0") || myForme.equals(FormeEnum.NOTHING)) {
+            isComplete = false;
+        } else {
+            isComplete = true;
+        }
+        System.out.println("update complete? " + isComplete + " " + x + " "+ y + " " + myForme);
+    }
+    
+    public void setIsComplete(boolean isComplete) {
+        this.isComplete = isComplete;
     }
 
     /**

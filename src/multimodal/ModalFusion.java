@@ -7,8 +7,11 @@ package multimodal;
 
 import fr.dgac.ivy.IvyClient;
 import fr.dgac.ivy.IvyException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Timer;
 import multimodal.ivyControl.IvyControl;
 
 /**
@@ -21,12 +24,93 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
     private State state = State.NOTHING;
     private Forme forme;
     private Action lastActionMade;
+    private Timer timerCommandeTotale;
+    private Timer timerCommandeComplementaire;
 
     public ModalFusion() throws IvyException {
         initComponents();
         forme = new Forme();
         ivyControl = new IvyControl(this);
         lastActionMade = new Action();
+        initTimer();
+        initTimerActionComplementaire();
+    }
+
+    /* ******************************************************
+     ****************** INIT METHODS
+     *  ******************************************************/
+    private void initTimer() {
+        ActionListener timerOutListener = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Fin timer, forme complete ? " + forme.isComplete());
+                System.out.println("Forme = " + forme.getMyForme() + " Pos = " + forme.getX() + " " + forme.getY());
+                forme.updateIsComplete();
+                if (forme.isComplete()) {
+                    switch (state) {
+                        case NOTHING:
+                            timerCommandeTotale.stop();
+                            break;
+                        case CREER:
+                            state = State.NOTHING;
+                            timerCommandeTotale.stop();
+                            ivyControl.send(forme.commandToCreateFormePatern());
+                            break;
+                        case DEPLACER:
+                            state = State.NOTHING;
+                            timerCommandeTotale.stop();
+                            ivyControl.send(forme.commandToMoveFormePatern());
+                            break;
+                        default:
+                            throw new AssertionError(state.name());
+
+                    }
+                } else {
+                    forme.clearForme();
+                    timerCommandeTotale.stop();
+                }
+            }
+        };
+        timerCommandeTotale = new Timer(4000, timerOutListener);
+    }
+
+    private void initTimerActionComplementaire() {
+        ActionListener timerOutListener = new ActionListener() {
+            //  start miniTimer (à la fin, si ParamAction est defini + etat defini --> action.mergeInfo + forme.setIsComplete(true);
+            //                  else clear
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Timer complementaire finis ");
+                if (lastActionMade.isComplete()) {
+                    switch (state) {
+                        case NOTHING:
+                            timerCommandeComplementaire.stop();
+                            break;
+                        case CREER:
+                            state = State.CREER;
+                            timerCommandeComplementaire.stop();
+//                            lastActionMade.getCommand();
+                            //switch sur le type de l'action (si c'est pour la forme ou pour interroger la palette sur ivy)
+//                                forme.setIsComplete(true);
+                            break;
+                        case DEPLACER:
+                            state = State.DEPLACER;
+                            timerCommandeComplementaire.stop();
+//                            lastActionMade.getCommand();
+                            //switch sur le type de l'action (si c'est pour la forme ou pour interroger la palette sur ivy)
+//                                forme.setIsComplete(true);
+                            break;
+                        default:
+                            throw new AssertionError(state.name());
+                    }
+                } else {
+                    lastActionMade.init();
+                    timerCommandeComplementaire.stop();
+                }
+            }
+        };
+        timerCommandeComplementaire = new Timer(2000, timerOutListener);
     }
 
     /* ******************************************************
@@ -34,23 +118,35 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
      *  ******************************************************/
     @Override
     public void icarListener(IvyClient client, String formeName) {
-
-        System.out.println("Création d'un " + formeName);
-        switch (formeName) {
-            case "rectangle":
-                forme.setMyForme(FormeEnum.RECTANGLE);
+//        System.out.println("Etat = " + state + " Dernier action = " + lastActionMade.getActionEnCours());
+        switch (state) {
+            case NOTHING:
+                state = State.CREER;
+                //forme.setIsComplete(false);
+                computeGestureCommand(formeName);
+                forme.updateIsComplete();
+                timerCommandeTotale.restart();
                 break;
-            case "ellipse":
-                forme.setMyForme(FormeEnum.ELLIPSE);
+            case CREER:
+                state = State.CREER;
+                //forme.setIsComplete(false);
+                computeGestureCommand(formeName);
+                forme.updateIsComplete();
+                timerCommandeTotale.restart();
+                break;
+            case DEPLACER:
+                //computeGestureCommand(direction);
                 break;
             default:
-                //dire qu'il y a un pb
-                break;
+                throw new AssertionError(state.name());
+
         }
+
     }
 
     @Override
     public void sraListener(IvyClient client, String confidence, String command) {
+//        System.out.println("Etat = " + state + " Dernier action = " + lastActionMade.getActionEnCours());
         if (computeVoiceConfidence(confidence)) {
             computeVoiceCommand(command);
         }
@@ -58,38 +154,138 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
 
     @Override
     public void paletteMousePressedListener(String x, String y) {
+//        System.out.println("Etat = " + state + " Dernier action = " + lastActionMade.getActionEnCours());
         switch (state) {
-            case CREER_COLOR:
-                System.out.println("CREER FORME CETTE COULEUR");
-                ivyControl.send("Palette:TesterPoint x=" + x + " y=" + y);
+            case NOTHING:
                 break;
-            case CREER_POSITION:
-                System.out.println("CREER FORME POSITION");
-                forme.setPosition(x, y);
-                state = State.NOTHING;
+            case CREER:
+                state = State.CREER;
+                //forme.setIsComplete(false);
+//                forme.updateIsComplete();
+                timerCommandeTotale.restart();
+                switch (lastActionMade.getActionEnCours()) {
+                    case NULL:
+                        timerCommandeComplementaire.restart();
+                        lastActionMade.setActionEnCours(ActionEnum.CLIC);
+                        String[] param = new String[2];
+                        param[0] = x;
+                        param[1] = y;
+                        lastActionMade.setParameters(param);
+                        break;
+                    case GESTE:
+                        break;
+                    case CAMMOVE:
+                        //Récupérer la forme cliquée
+                        //forme.deplacer(lastAction.param[0]);
+                        break;
+                    case CAMCOLOR:
+                        //Récupérer la forme cliquée
+                        //forme.setColor(lastAction.param[0])
+                        break;
+                    case CLIC:
+                        break;
+                    case VOIX_ICI:
+                        timerCommandeComplementaire.stop();
+                        System.out.println("CREER FORME POSITION");
+                        forme.setPosition(x, y);
+                        forme.updateIsComplete();
+                        lastActionMade.init();
+                        break;
+                    case VOIX_UNECOULEUR:
+                        break;
+                    case VOIX_CETTECOULEUR:
+                        timerCommandeComplementaire.stop();
+                        System.out.println("CREER FORME CETTE COULEUR");
+                        ivyControl.send("Palette:TesterPoint x=" + x + " y=" + y);
+                        //A mettre dans le listener de la palette
+                        //Récupérer la couleur de la forme cliquée et faire un forme.setCouleur();
+                        lastActionMade.init();
+                        break;
+                    case TIMER:
+                        break;
+                    case VOIX_DEPLACER:
+                        break;
+                    case COMMECELA:
+                        break;
+                    default:
+                        throw new AssertionError(lastActionMade.getActionEnCours().name());
+
+                }
                 break;
-            case DEPLACER_CHOISIR_FORME:
-                System.out.println("CHOIX DEPLACEMENT FORME");
-                ivyControl.send("Palette:TesterPoint x=" + x + " y=" + y);
-                //state = State.DEPLACER_CHOISIR_POSITION;
+            case DEPLACER:
+                state = State.DEPLACER;
+                timerCommandeTotale.restart();
+                switch (lastActionMade.getActionEnCours()) {
+                    case NULL:
+                        timerCommandeComplementaire.restart();
+                        lastActionMade.setActionEnCours(ActionEnum.CLIC);
+                        String[] param = new String[2];
+                        param[0] = x;
+                        param[1] = y;
+                        lastActionMade.setParameters(param);
+                        break;
+                    case GESTE:
+                        break;
+                    case CAMMOVE:
+                        break;
+                    case CAMCOLOR:
+                        break;
+                    case CLIC:
+                        break;
+                    case VOIX_ICI:
+                        timerCommandeComplementaire.stop();
+                        System.out.println("CHOIX DEPLACEMENT POSITION");
+                        //forme.setIsComplete(true);
+                        forme.setX(x);
+                        forme.setY(y);
+                        forme.updateIsComplete();
+                        lastActionMade.init();
+                        break;
+                    case VOIX_UNECOULEUR:
+                        break;
+                    case VOIX_CETTECOULEUR:
+                        timerCommandeComplementaire.stop();
+                        //Selection de la forme en fonction de la couleur
+                        //forme.setIsComplete(false);
+                        System.out.println("CHOIX DEPLACEMENT FORME");
+                        ivyControl.send("Palette:TesterPoint x=" + x + " y=" + y);
+                        lastActionMade.init();
+                        break;
+                    case TIMER:
+                        break;
+                    case VOIX_DEPLACER:
+                        break;
+                    case COMMECELA:
+                        break;
+                    default:
+                        throw new AssertionError(lastActionMade.getActionEnCours().name());
+
+                }
                 break;
-            case DEPLACER_CHOISIR_POSITION:
-                System.out.println("CHOIX DEPLACEMENT POSITION");
-                forme.setX(x);
-                forme.setY(y);
-                break;
+            default:
+                throw new AssertionError(state.name());
         }
     }
 
     @Override
     public void paletteFormeInformationListener(String name, String backgroundColor, String strokeColor) {
+        System.out.println("Etat = " + state + " Dernier action = " + lastActionMade.getActionEnCours());
         switch (state) {
-            case CREER_COLOR:
+            case NOTHING:
+                break;
+            case CREER:
+                state = State.CREER;
+                timerCommandeTotale.restart();
+                //forme.setIsComplete(true);
+                forme.updateIsComplete();
                 forme.setBackgroundColor(computeRGBToString(backgroundColor));
                 forme.setStrokeColor(computeRGBToString(strokeColor));
-                state = State.NOTHING;
                 break;
-            case DEPLACER_CHOISIR_FORME:
+            case DEPLACER:
+                state = State.DEPLACER;
+                timerCommandeTotale.restart();
+                //forme.setIsComplete(true);
+                forme.updateIsComplete();
                 //verifier qu'il y'a pas 2 rectangles au même endroit
                 forme.setName(name);
                 state = State.DEPLACER_CHOISIR_POSITION;
@@ -109,12 +305,28 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
         return rgbParsed;
     }
 
+    private void computeGestureCommand(String formeName) {
+        System.out.println("Création d'un " + formeName);
+        switch (formeName) {
+            case "rectangle":
+                forme.setMyForme(FormeEnum.RECTANGLE);
+                break;
+            case "ellipse":
+                forme.setMyForme(FormeEnum.ELLIPSE);
+                break;
+            default:
+                //dire qu'il y a un pb
+                break;
+        }
+        lastActionMade.init();
+    }
+
     private boolean computeVoiceConfidence(String confidence) {
-        System.out.println("FORME : " + forme);
+        System.out.println("FORME : " + forme.getMyForme());
 
         String convertedConfidence = confidence.replace(",", ".");
         double confidenceRate = Double.parseDouble(convertedConfidence);
-        return (confidenceRate >= 0.90) ? true : false;
+        return (confidenceRate >= 0.60) ? true : false;
     }
 
     private void computeVoiceCommand(String command) {
@@ -122,6 +334,10 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
             case "validation":
                 if (forme.toString() != null) {
                     switch (state) {
+                        case NOTHING:
+                            break;
+                        case DEPLACER_CHOISIR_FORME:
+                            break;
                         case CREER_COLOR:
                             ivyControl.send(forme.commandToCreateFormePatern());
                             break;
@@ -131,24 +347,284 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                         case DEPLACER_CHOISIR_POSITION:
                             ivyControl.send(forme.commandToMoveFormePatern());
                             break;
+
+                        default:
+                            throw new AssertionError(state.name());
                     }
                     System.out.println(forme);
                 }
                 forme.clearForme();
                 break;
             case "designationcolor":
-                state = State.CREER_COLOR;
+//                state = State.CREER_COLOR;
+                switch (state) {
+                    case NOTHING:
+                        break;
+                    case CREER:
+                        state = State.CREER;
+                        //forme.setIsComplete(false);
+                        forme.updateIsComplete();
+                        switch (lastActionMade.getActionEnCours()) {
+                            case NULL:
+                                timerCommandeComplementaire.restart();
+                                lastActionMade.setActionEnCours(ActionEnum.VOIX_CETTECOULEUR);
+                                String[] param = new String[2];
+                                param[0] = "designationcolor";
+                                lastActionMade.setParameters(param);
+                                break;
+                            case GESTE:
+                                break;
+                            case CAMMOVE:
+                                break;
+                            case CAMCOLOR:
+                                break;
+                            case CLIC:
+                                timerCommandeComplementaire.stop();
+                                lastActionMade.getParameters();
+                                int x = Integer.parseInt(lastActionMade.getParameters()[0]);
+                                int y = Integer.parseInt(lastActionMade.getParameters()[1]);
+                                System.out.println("CREER FORME CETTE COULEUR");
+                                ivyControl.send("Palette:TesterPoint x=" + x + " y=" + y);
+                                lastActionMade.init();
+                                break;
+                            case VOIX_ICI:
+                                break;
+                            case VOIX_UNECOULEUR:
+                                break;
+                            case VOIX_CETTECOULEUR:
+                                break;
+                            case TIMER:
+                                break;
+                            case VOIX_DEPLACER:
+                                break;
+                            case COMMECELA:
+                                break;
+                            default:
+                                throw new AssertionError(lastActionMade.getActionEnCours().name());
+
+                        }
+                        //if lastAction c'est clic
+                        //  lastAction.getCommand
+                        //  execute
+                        //  miniTimer.stop
+                        //else
+                        //  Créer action avec "designationColor"
+                        //  miniTimer.restart
+                        break;
+                    case DEPLACER:
+                        state = State.DEPLACER;
+                        //forme.setIsComplete(false);
+                        forme.updateIsComplete();
+                        //Créer action avec "designationColor"                        
+                        switch (lastActionMade.getActionEnCours()) {
+                            case NULL:
+                                timerCommandeComplementaire.restart();
+                                lastActionMade.setActionEnCours(ActionEnum.VOIX_CETTECOULEUR);
+                                String[] param = new String[2];
+                                param[0] = "designationcolor";
+                                lastActionMade.setParameters(param);
+                                break;
+                            case GESTE:
+                                break;
+                            case CAMMOVE:
+                                break;
+                            case CAMCOLOR:
+                                break;
+                            case CLIC:
+                                timerCommandeComplementaire.stop();
+                                lastActionMade.getParameters();
+                                int x = Integer.parseInt(lastActionMade.getParameters()[0]);
+                                int y = Integer.parseInt(lastActionMade.getParameters()[1]);
+                                System.out.println("DEPLACER FORME CETTE COULEUR");
+                                ivyControl.send("Palette:TesterPoint x=" + x + " y=" + y);
+                                lastActionMade.init();
+                                break;
+                            case VOIX_ICI:
+                                break;
+                            case VOIX_UNECOULEUR:
+                                break;
+                            case VOIX_CETTECOULEUR:
+                                break;
+                            case TIMER:
+                                break;
+                            case VOIX_DEPLACER:
+                                break;
+                            case COMMECELA:
+                                break;
+                            default:
+                                throw new AssertionError(lastActionMade.getActionEnCours().name());
+
+                        }
+                        break;
+                    default:
+                        throw new AssertionError(state.name());
+
+                }
                 break;
             case "deplacementChoixForme":
-                forme.clearForme();
-                state = State.DEPLACER_CHOISIR_FORME;
+                switch (state) {
+                    case NOTHING:
+                        break;
+                    case CREER:
+                        state = State.CREER;
+                        //forme.setIsComplete(false);
+                        forme.updateIsComplete();
+                        //Créer action avec "deplacementChoixForme"
+                        break;
+                    case DEPLACER:
+                        state = State.DEPLACER;
+                        //forme.setIsComplete(false);
+                        forme.updateIsComplete();
+                        //Créer action avec "deplacementChoixForme"                        
+                        break;
+                    default:
+                        throw new AssertionError(state.name());
+
+                }
+//                forme.clearForme();
+//                state = State.DEPLACER_CHOISIR_FORME;
                 break;
             case "deplacementChoixPosition":
+                switch (state) {
+                    case NOTHING:
+                        break;
+                    case CREER:
+                        state = State.CREER;
+                        //forme.setIsComplete(false);
+                        forme.updateIsComplete();
+                        //Créer action avec "deplacementChoixPos"
+                        break;
+                    case DEPLACER:
+                        state = State.DEPLACER;
+                        //forme.setIsComplete(false);
+                        forme.updateIsComplete();
+                        //Créer action avec "deplacementChoixPosition"                        
+                        break;
+                    default:
+                        throw new AssertionError(state.name());
+
+                }
                 //forme.clearForme();
-                state = State.DEPLACER_CHOISIR_POSITION;
+//                state = State.DEPLACER_CHOISIR_POSITION;
                 break;
             case "ici":
-                state = State.CREER_POSITION;
+                //state = State.CREER_POSITION;
+                switch (state) {
+                    case NOTHING:
+                        break;
+                    case CREER:
+                        state = State.CREER;
+                        //forme.setIsComplete(false);
+                        forme.updateIsComplete();
+                        //Créer action avec "ICI"
+                        switch (lastActionMade.getActionEnCours()) {
+                            case NULL:
+                                timerCommandeComplementaire.restart();
+                                lastActionMade.setActionEnCours(ActionEnum.VOIX_ICI);
+                                System.out.println("créer + ici " + lastActionMade.getActionEnCours());
+                                break;
+                            case GESTE:
+                                break;
+                            case CAMMOVE:
+                                break;
+                            case CAMCOLOR:
+                                break;
+                            case CLIC:
+                                timerCommandeComplementaire.stop();
+                                lastActionMade.getParameters();
+                                String x = lastActionMade.getParameters()[0];
+                                String y = lastActionMade.getParameters()[1];
+                                System.out.println("CREER FORME ICI");
+                                forme.setPosition(x, y);
+                                forme.updateIsComplete();
+                                lastActionMade.init();
+                                break;
+                            case VOIX_ICI:
+                                break;
+                            case VOIX_UNECOULEUR:
+                                break;
+                            case VOIX_CETTECOULEUR:
+                                break;
+                            case TIMER:
+                                break;
+                            case VOIX_DEPLACER:
+                                break;
+                            case COMMECELA:
+                                break;
+                            default:
+                                throw new AssertionError(lastActionMade.getActionEnCours().name());
+
+                        }
+                        break;
+                    case DEPLACER:
+                        state = State.DEPLACER;
+                        forme.updateIsComplete();
+                        //forme.setIsComplete(false);
+                        //Créer action avec "ICI"
+                        switch (lastActionMade.getActionEnCours()) {
+                            case NULL:
+                                timerCommandeComplementaire.restart();
+                                lastActionMade.setActionEnCours(ActionEnum.VOIX_ICI);
+                                break;
+                            case GESTE:
+                                break;
+                            case CAMMOVE:
+                                break;
+                            case CAMCOLOR:
+                                break;
+                            case CLIC:
+                                timerCommandeComplementaire.stop();
+                                lastActionMade.getParameters();
+                                String x = lastActionMade.getParameters()[0];
+                                String y = lastActionMade.getParameters()[1];
+                                System.out.println("DEPLACER FORME ICI");
+                                forme.setX(x);
+                                forme.setY(y);
+                                forme.updateIsComplete();
+                                lastActionMade.init();
+                                break;
+                            case VOIX_ICI:
+                                break;
+                            case VOIX_UNECOULEUR:
+                                break;
+                            case VOIX_CETTECOULEUR:
+                                break;
+                            case TIMER:
+                                break;
+                            case VOIX_DEPLACER:
+                                break;
+                            case COMMECELA:
+                                break;
+                            default:
+                                throw new AssertionError(lastActionMade.getActionEnCours().name());
+
+                        }
+                        break;
+                    default:
+                        throw new AssertionError(state.name());
+
+                }
+                break;
+            case "commeCela":
+                switch (state) {
+                    case NOTHING:
+                        break;
+                    case CREER:
+                        state = State.CREER;
+                        forme.updateIsComplete();
+                        //forme.setIsComplete(false);
+                        //Créer action avec "commeCela"
+                        break;
+                    case DEPLACER:
+                        state = State.DEPLACER;
+                        //forme.setIsComplete(false);
+                        forme.updateIsComplete();
+                        //Créer action avec "commeCela"                        
+                        break;
+                    default:
+                        throw new AssertionError(state.name());
+
+                }
                 break;
             default:
                 //color
