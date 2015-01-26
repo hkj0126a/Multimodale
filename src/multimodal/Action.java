@@ -27,6 +27,8 @@ public class Action {
         setModal(ModalEnum.NONE);
         setCommand("");
         parameters = new String[2];
+        parameters[0] = "";
+        parameters[1] = "";
         actionEnCours = ActionEnum.NULL;
         actionComplementaires = new HashMap();
         fillActionComplementaires();
@@ -61,6 +63,8 @@ public class Action {
     public void init() {
         actionEnCours = ActionEnum.NULL;
         parameters = new String[2];
+        parameters[0] = "";
+        parameters[1] = "";
     }
 
     /**
@@ -126,6 +130,9 @@ public class Action {
     }
 
     private void updateIsComplete() {
+        if(parameters == null) {
+            parameters = new String[2];
+        }
         if (parameters[0] != null && !actionEnCours.equals(ActionEnum.NULL)) {
             setIsComplete(true);
         } else {

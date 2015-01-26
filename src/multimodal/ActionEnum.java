@@ -20,5 +20,7 @@ public enum ActionEnum {
     VOIX_CETTECOULEUR,
     TIMER,
     VOIX_DEPLACER,
-    COMMECELA
+    COMMECELA,  
+    CHOIX_FORME,
+    FORME_SELECTIONNEE
 }

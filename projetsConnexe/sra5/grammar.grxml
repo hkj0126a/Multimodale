@@ -23,9 +23,6 @@
                 <ruleref uri="#designationColor"/>
             </item>
             <item>
-                <ruleref uri="#validation"/>
-            </item>
-            <item>
                 <ruleref uri="#deplacementChoixForme"/>
             </item>
             <item>
@@ -70,14 +67,6 @@
         <tag>out.text = "designationcolor";</tag>
     </rule> 
 	
-    <rule id="validation">
-        <one-of>
-            <item>je valide</item>
-            <item>valider</item>
-        </one-of>
-        <tag>out.text = "validation";</tag>
-    </rule> 
-
     <rule id="deplacementChoixForme">
         <one-of>
             <item>déplacer</item>
@@ -96,7 +85,7 @@
     
     <rule id="forme">
         <one-of>
-            <item>rond</item>
+            <item>rond</item>			
             <item>rectangle</item> 
         </one-of>
         <tag>out.text = meta.current().text;</tag>

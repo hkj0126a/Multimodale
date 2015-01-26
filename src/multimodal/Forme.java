@@ -14,6 +14,7 @@ public class Forme {
     private String backgroundColor;
     private String strokeColor;
     private boolean isComplete;
+    private Commande typeCommande;
 
     public Forme() {
         clearForme();
@@ -21,6 +22,7 @@ public class Forme {
 
     public void clearForme() {
         myForme = FormeEnum.NOTHING;
+        typeCommande = Commande.NULL;
         x = "0";
         y = "0";
         width = 100;
@@ -36,14 +38,21 @@ public class Forme {
     }
 
     public void updateIsComplete() {
-        if(x.equals("0") && y.equals("0") || myForme.equals(FormeEnum.NOTHING)) {
+        if (typeCommande.equals(Commande.DEPLACEMENT)) {
+            if (myForme.equals(FormeEnum.NOTHING) || name.equals("")) {
+                isComplete = false;
+            } else {
+                isComplete = true;
+            }
+        } else if (x.equals("0") && y.equals("0") || myForme.equals(FormeEnum.NOTHING)) {
             isComplete = false;
         } else {
             isComplete = true;
         }
-        System.out.println("update complete? " + isComplete + " " + x + " "+ y + " " + myForme);
+
+        System.out.println("update complete? " + isComplete + " " + x + " " + y + " " + myForme);
     }
-    
+
     public void setIsComplete(boolean isComplete) {
         this.isComplete = isComplete;
     }
@@ -158,21 +167,20 @@ public class Forme {
             return "Palette:Creer" + forme + " x=" + getX() + " y=" + getY()
                     + " longueur=" + width + " hauteur=" + height + " couleurFond=" + backgroundColor
                     + " couleurContour=" + strokeColor;
-        }
-        else {
+        } else {
             return null;
         }
     }
-    
+
     public String commandToMoveFormePatern() {
         if (myForme != FormeEnum.NOTHING) {
-            
-            return "Palette:DeplacerObjet nom="+getName()+" x="+getX()+" y="+getY();
-        }
-        else {
+
+            return "Palette:DeplacerObjet nom=" + getName() + " x=" + getX() + " y=" + getY();
+        } else {
             return null;
         }
     }
+
     /**
      * @return the name
      */
@@ -185,6 +193,14 @@ public class Forme {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Commande getTypeCommande() {
+        return typeCommande;
+    }
+
+    public void setTypeCommande(Commande typeCommande) {
+        this.typeCommande = typeCommande;
     }
 
 }
