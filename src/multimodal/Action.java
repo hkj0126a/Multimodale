@@ -128,43 +128,8 @@ public class Action {
     private void updateIsComplete() {
         if (parameters[0] != null && !actionEnCours.equals(ActionEnum.NULL)) {
             setIsComplete(true);
-            buildCommand();
         } else {
             setIsComplete(false);
         }
-    }
-    
-    private void buildCommand() {
-//        switch(actionEnCours) {
-//            case NULL:
-//                break;
-//            case GESTE:
-//                break;
-//            case CAMMOVE:
-//                break;
-//            case CAMCOLOR:
-//                break;
-//            case CLIC:
-//                break;
-//            case ICI:
-//                command =""; 
-//                break;
-//            case COULEUR:
-//                break;
-//            case CETTECOULEUR:
-//                command = "Palette:TesterPoint x=" + parameters[0] + " y=" + parameters[1];
-//                break;
-//            case CETTEFORME:
-//                break;
-//            case TIMER:
-//                break;
-//            case DEPLACER:
-//                break;
-//            case COMMECELA:
-//                break;
-//            default:
-//                throw new AssertionError(actionEnCours.name());
-//            
-//        }
     }
 }

@@ -77,8 +77,6 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
 
     private void initTimerActionComplementaire() {
         ActionListener timerOutListener = new ActionListener() {
-            //  start miniTimer (à la fin, si ParamAction est defini + etat defini --> action.mergeInfo + forme.setIsComplete(true);
-            //                  else clear
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Timer complementaire finis ");
@@ -90,16 +88,10 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                         case CREER:
                             state = State.CREER;
                             timerCommandeComplementaire.stop();
-//                            lastActionMade.getCommand();
-                            //switch sur le type de l'action (si c'est pour la forme ou pour interroger la palette sur ivy)
-//                                forme.setIsComplete(true);
                             break;
                         case DEPLACER:
                             state = State.DEPLACER;
                             timerCommandeComplementaire.stop();
-//                            lastActionMade.getCommand();
-                            //switch sur le type de l'action (si c'est pour la forme ou pour interroger la palette sur ivy)
-//                                forme.setIsComplete(true);
                             break;
                         default:
                             throw new AssertionError(state.name());
@@ -118,24 +110,20 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
      *  ******************************************************/
     @Override
     public void icarListener(IvyClient client, String formeName) {
-//        System.out.println("Etat = " + state + " Dernier action = " + lastActionMade.getActionEnCours());
         switch (state) {
             case NOTHING:
                 state = State.CREER;
-                //forme.setIsComplete(false);
                 computeGestureCommand(formeName);
                 forme.updateIsComplete();
                 timerCommandeTotale.restart();
                 break;
             case CREER:
                 state = State.CREER;
-                //forme.setIsComplete(false);
                 computeGestureCommand(formeName);
                 forme.updateIsComplete();
                 timerCommandeTotale.restart();
                 break;
             case DEPLACER:
-                //computeGestureCommand(direction);
                 break;
             default:
                 throw new AssertionError(state.name());
@@ -146,7 +134,6 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
 
     @Override
     public void sraListener(IvyClient client, String confidence, String command) {
-//        System.out.println("Etat = " + state + " Dernier action = " + lastActionMade.getActionEnCours());
         if (computeVoiceConfidence(confidence)) {
             computeVoiceCommand(command);
         }
@@ -154,14 +141,11 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
 
     @Override
     public void paletteMousePressedListener(String x, String y) {
-//        System.out.println("Etat = " + state + " Dernier action = " + lastActionMade.getActionEnCours());
         switch (state) {
             case NOTHING:
                 break;
             case CREER:
                 state = State.CREER;
-                //forme.setIsComplete(false);
-//                forme.updateIsComplete();
                 timerCommandeTotale.restart();
                 switch (lastActionMade.getActionEnCours()) {
                     case NULL:
@@ -197,8 +181,6 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                         timerCommandeComplementaire.stop();
                         System.out.println("CREER FORME CETTE COULEUR");
                         ivyControl.send("Palette:TesterPoint x=" + x + " y=" + y);
-                        //A mettre dans le listener de la palette
-                        //Récupérer la couleur de la forme cliquée et faire un forme.setCouleur();
                         lastActionMade.init();
                         break;
                     case TIMER:
@@ -235,7 +217,6 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                     case VOIX_ICI:
                         timerCommandeComplementaire.stop();
                         System.out.println("CHOIX DEPLACEMENT POSITION");
-                        //forme.setIsComplete(true);
                         forme.setX(x);
                         forme.setY(y);
                         forme.updateIsComplete();
@@ -245,8 +226,6 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                         break;
                     case VOIX_CETTECOULEUR:
                         timerCommandeComplementaire.stop();
-                        //Selection de la forme en fonction de la couleur
-                        //forme.setIsComplete(false);
                         System.out.println("CHOIX DEPLACEMENT FORME");
                         ivyControl.send("Palette:TesterPoint x=" + x + " y=" + y);
                         lastActionMade.init();
@@ -270,13 +249,13 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
     @Override
     public void paletteFormeInformationListener(String name, String backgroundColor, String strokeColor) {
         System.out.println("Etat = " + state + " Dernier action = " + lastActionMade.getActionEnCours());
+        System.out.println("Name = " + name);
         switch (state) {
             case NOTHING:
                 break;
             case CREER:
                 state = State.CREER;
                 timerCommandeTotale.restart();
-                //forme.setIsComplete(true);
                 forme.updateIsComplete();
                 forme.setBackgroundColor(computeRGBToString(backgroundColor));
                 forme.setStrokeColor(computeRGBToString(strokeColor));
@@ -284,11 +263,20 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
             case DEPLACER:
                 state = State.DEPLACER;
                 timerCommandeTotale.restart();
-                //forme.setIsComplete(true);
+                if (forme.getMyForme() != null) {
+                    if (forme.getMyForme().equals(FormeEnum.ELLIPSE) && name.startsWith("r")) {
+
+                    }
+                    if (forme.getMyForme().equals(FormeEnum.RECTANGLE) && name.startsWith("r")) {
+
+                    }
+                }
+                forme.setName(name);
+
                 forme.updateIsComplete();
                 //verifier qu'il y'a pas 2 rectangles au même endroit
-                forme.setName(name);
-                state = State.DEPLACER_CHOISIR_POSITION;
+
+//                state = State.DEPLACER_CHOISIR_POSITION;
                 break;
             default:
                 break;
@@ -313,6 +301,18 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                 break;
             case "ellipse":
                 forme.setMyForme(FormeEnum.ELLIPSE);
+                break;
+            case "haut":
+                forme.setY("20");
+                break;
+            case "bas":
+                forme.setY("-20");
+                break;
+            case "gauche":
+                forme.setX("-20");
+                break;
+            case "droite":
+                forme.setX("20");
                 break;
             default:
                 //dire qu'il y a un pb
@@ -349,20 +349,18 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                             break;
 
                         default:
-                            throw new AssertionError(state.name());
+                            //throw new AssertionError(state.name());
                     }
                     System.out.println(forme);
                 }
                 forme.clearForme();
                 break;
             case "designationcolor":
-//                state = State.CREER_COLOR;
                 switch (state) {
                     case NOTHING:
                         break;
                     case CREER:
                         state = State.CREER;
-                        //forme.setIsComplete(false);
                         forme.updateIsComplete();
                         switch (lastActionMade.getActionEnCours()) {
                             case NULL:
@@ -403,19 +401,10 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                                 throw new AssertionError(lastActionMade.getActionEnCours().name());
 
                         }
-                        //if lastAction c'est clic
-                        //  lastAction.getCommand
-                        //  execute
-                        //  miniTimer.stop
-                        //else
-                        //  Créer action avec "designationColor"
-                        //  miniTimer.restart
                         break;
                     case DEPLACER:
                         state = State.DEPLACER;
-                        //forme.setIsComplete(false);
                         forme.updateIsComplete();
-                        //Créer action avec "designationColor"                        
                         switch (lastActionMade.getActionEnCours()) {
                             case NULL:
                                 timerCommandeComplementaire.restart();
@@ -464,25 +453,52 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
             case "deplacementChoixForme":
                 switch (state) {
                     case NOTHING:
+                        state = State.DEPLACER;
                         break;
                     case CREER:
                         state = State.CREER;
-                        //forme.setIsComplete(false);
                         forme.updateIsComplete();
-                        //Créer action avec "deplacementChoixForme"
                         break;
                     case DEPLACER:
                         state = State.DEPLACER;
-                        //forme.setIsComplete(false);
                         forme.updateIsComplete();
-                        //Créer action avec "deplacementChoixForme"                        
                         break;
                     default:
                         throw new AssertionError(state.name());
 
                 }
-//                forme.clearForme();
-//                state = State.DEPLACER_CHOISIR_FORME;
+                break;
+            case "rond":
+                switch (state) {
+                    case NOTHING:
+                        state = State.DEPLACER;
+                        forme.setMyForme(FormeEnum.ELLIPSE);
+                        break;
+                    case CREER:
+                        break;
+                    case DEPLACER:
+                        state = State.DEPLACER;
+                        forme.setMyForme(FormeEnum.ELLIPSE);
+                        break;
+                    default:
+                        throw new AssertionError(state.name());
+                }
+                break;
+            case "rectangle":
+                switch (state) {
+                    case NOTHING:
+                        state = State.DEPLACER;
+                        forme.setMyForme(FormeEnum.RECTANGLE);
+                        break;
+                    case CREER:
+                        break;
+                    case DEPLACER:
+                        state = State.DEPLACER;
+                        forme.setMyForme(FormeEnum.RECTANGLE);
+                        break;
+                    default:
+                        throw new AssertionError(state.name());
+                }
                 break;
             case "deplacementChoixPosition":
                 switch (state) {
@@ -490,33 +506,24 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                         break;
                     case CREER:
                         state = State.CREER;
-                        //forme.setIsComplete(false);
                         forme.updateIsComplete();
-                        //Créer action avec "deplacementChoixPos"
                         break;
                     case DEPLACER:
                         state = State.DEPLACER;
-                        //forme.setIsComplete(false);
                         forme.updateIsComplete();
-                        //Créer action avec "deplacementChoixPosition"                        
                         break;
                     default:
                         throw new AssertionError(state.name());
 
                 }
-                //forme.clearForme();
-//                state = State.DEPLACER_CHOISIR_POSITION;
                 break;
             case "ici":
-                //state = State.CREER_POSITION;
                 switch (state) {
                     case NOTHING:
                         break;
                     case CREER:
                         state = State.CREER;
-                        //forme.setIsComplete(false);
                         forme.updateIsComplete();
-                        //Créer action avec "ICI"
                         switch (lastActionMade.getActionEnCours()) {
                             case NULL:
                                 timerCommandeComplementaire.restart();
@@ -559,8 +566,6 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                     case DEPLACER:
                         state = State.DEPLACER;
                         forme.updateIsComplete();
-                        //forme.setIsComplete(false);
-                        //Créer action avec "ICI"
                         switch (lastActionMade.getActionEnCours()) {
                             case NULL:
                                 timerCommandeComplementaire.restart();
@@ -612,14 +617,10 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                     case CREER:
                         state = State.CREER;
                         forme.updateIsComplete();
-                        //forme.setIsComplete(false);
-                        //Créer action avec "commeCela"
                         break;
                     case DEPLACER:
                         state = State.DEPLACER;
-                        //forme.setIsComplete(false);
                         forme.updateIsComplete();
-                        //Créer action avec "commeCela"                        
                         break;
                     default:
                         throw new AssertionError(state.name());
