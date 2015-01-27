@@ -7,6 +7,7 @@ package multimodal;
 
 import fr.dgac.ivy.IvyClient;
 import fr.dgac.ivy.IvyException;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.logging.Level;
@@ -18,7 +19,7 @@ import multimodal.ivyControl.IvyControl;
  *
  * @author nathan
  */
-public class ModalFusion extends javax.swing.JFrame implements ModalFusionListener {
+public class ModalFusion2 extends javax.swing.JFrame implements ModalFusionListener {
 
     //Empêcher de déplacer si on dit déplacer, clic, ici sans le reclic --> mettre les paramètres de coord dans d'autre variables/faire un validerMove, coordRef - coordNewPoint
     private IvyControl ivyControl;
@@ -28,7 +29,7 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
     private Timer timerCommandeTotale;
     private Timer timerCommandeComplementaire;
 
-    public ModalFusion() throws IvyException {
+    public ModalFusion2() throws IvyException {
         initComponents();
         forme = new Forme();
         ivyControl = new IvyControl(this);
@@ -60,9 +61,10 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                             break;
                         case DEPLACER:
                             state = State.NOTHING;
-                            System.out.println(forme.commandToMoveFormePatern());
-                            ivyControl.send(forme.commandToMoveFormePatern());
-
+                            System.out.println(forme.commandToMoveFormePatern());                            
+                            if (lastActionMade.isDeplacementValide()) {
+                                ivyControl.send(forme.commandToMoveFormePatern());
+                            }
                             break;
                         default:
                             throw new AssertionError(state.name());
@@ -147,10 +149,8 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
     @Override
     public void paletteMousePressedListener(String x, String y) {
         String[] param;
-        int xInitial;
-        int yInitial;
-        int xFinal;
-        int yFinal;
+        Point pInit;
+        Point pFinal;
         switch (state) {
             case NOTHING:
                 break;
@@ -182,7 +182,7 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                         timerCommandeComplementaire.stop();
 //                        System.out.println("CREER FORME POSITION");
                         forme.setPosition(x, y);
-                        lastActionMade.init();
+//                        lastActionMade.init();
                         break;
                     case VOIX_UNECOULEUR:
                         break;
@@ -190,7 +190,7 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                         timerCommandeComplementaire.stop();
 //                        System.out.println("CREER FORME CETTE COULEUR");
                         ivyControl.send("Palette:TesterPoint x=" + x + " y=" + y);
-                        lastActionMade.init();
+//                        lastActionMade.init();
                         break;
                     case TIMER:
                         break;
@@ -240,31 +240,43 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                         lastActionMade.setActionEnCours(ActionEnum.CLIC);
 //                            System.out.println("CHOIX DEPLACEMENT POSITION");
                         //Exception input string ""
-                        xInitial = Integer.parseInt(lastActionMade.getParameters()[0]);
-                        yInitial = Integer.parseInt(lastActionMade.getParameters()[1]);
-                        xFinal = -Integer.parseInt(x) + xInitial;
-                        yFinal = -Integer.parseInt(y) + yInitial;
-                        forme.setX(xFinal + "");
-                        forme.setY(yFinal + "");
-                        lastActionMade.init();
+                        pInit = new Point(Integer.parseInt(lastActionMade.getParameters()[0]), Integer.parseInt(lastActionMade.getParameters()[1]));
+                        pFinal = new Point(Integer.parseInt(x), Integer.parseInt(y));
+                        lastActionMade.setReference(pInit);
+                        lastActionMade.setDestination(pFinal);
+//                        xInitial = Integer.parseInt(lastActionMade.getParameters()[0]);
+//                        yInitial = Integer.parseInt(lastActionMade.getParameters()[1]);
+//                        xFinal = -Integer.parseInt(x) + xInitial;
+//                        yFinal = -Integer.parseInt(y) + yInitial;
+//                        forme.setX(xFinal + "");
+//                        forme.setY(yFinal + "");
+                        forme.setX(lastActionMade.getDistanceX() + "");
+                        forme.setY(lastActionMade.getDistanceY() + "");
+//                        lastActionMade.init();
                         break;
                     case FORME_SELECTIONNEE:
                         timerCommandeComplementaire.stop();
 //                            System.out.println("CHOIX DEPLACEMENT POSITION");
                         lastActionMade.setActionEnCours(ActionEnum.CLIC);
-                        xInitial = Integer.parseInt(lastActionMade.getParameters()[0]);
-                        yInitial = Integer.parseInt(lastActionMade.getParameters()[1]);
-                        xFinal = Integer.parseInt(x) - xInitial;
-                        yFinal = Integer.parseInt(y) - yInitial;
-                        forme.setX(xFinal + "");
-                        forme.setY(yFinal + "");
-                        lastActionMade.init();
+                        pInit = new Point(Integer.parseInt(lastActionMade.getParameters()[0]), Integer.parseInt(lastActionMade.getParameters()[1]));
+                        pFinal = new Point(Integer.parseInt(x), Integer.parseInt(y));
+                        lastActionMade.setReference(pInit);
+                        lastActionMade.setDestination(pFinal);
+//                        xInitial = Integer.parseInt(lastActionMade.getParameters()[0]);
+//                        yInitial = Integer.parseInt(lastActionMade.getParameters()[1]);
+//                        xFinal = Integer.parseInt(x) - xInitial;
+//                        yFinal = Integer.parseInt(y) - yInitial;
+//                        forme.setX(xFinal + "");
+//                        forme.setY(yFinal + "");
+                        forme.setX(lastActionMade.getDistanceX() + "");
+                        forme.setY(lastActionMade.getDistanceY() + "");
+//                        lastActionMade.init();
                         break;
                     case VOIX_CETTECOULEUR:
                         timerCommandeComplementaire.stop();
 //                            System.out.println("CHOIX DEPLACEMENT FORME");
                         ivyControl.send("Palette:TesterPoint x=" + x + " y=" + y);
-                        lastActionMade.init();
+//                        lastActionMade.init();
                         break;
                     default:
                         throw new AssertionError(lastActionMade.getActionEnCours().name());
@@ -314,7 +326,7 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                                 lastActionMade.setActionEnCours(ActionEnum.FORME_SELECTIONNEE);
                             } else {
 //                                jLabel1.setText("La forme cliquée ne corresponds pas à ce que t'as dis");
-                                lastActionMade.init();
+//                                lastActionMade.init();
                                 state = State.NOTHING;
                                 updateState();
                             }
@@ -334,7 +346,7 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                                 lastActionMade.setActionEnCours(ActionEnum.FORME_SELECTIONNEE);
                             } else {
 //                                jLabel1.setText("La forme cliquée ne corresponds pas à ce que t'as dis");
-                                lastActionMade.init();
+//                                lastActionMade.init();
                                 state = State.NOTHING;
                                 updateState();
                             }
@@ -390,6 +402,8 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
     }
 
     private void computeVoiceCommand(String command) {
+        Point pInit;
+        Point pFinal;
         switch (command) {
             case "designationcolor":
                 switch (state) {
@@ -416,7 +430,7 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                                 lastActionMade.getParameters();
                                 int x = Integer.parseInt(lastActionMade.getParameters()[0]);
                                 int y = Integer.parseInt(lastActionMade.getParameters()[1]);
-//                                System.out.println("CREER FORME CETTE COULEUR");
+                                System.out.println("CREER FORME CETTE COULEUR");
                                 ivyControl.send("Palette:TesterPoint x=" + x + " y=" + y);
                                 lastActionMade.init();
                                 break;
@@ -455,12 +469,14 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                                 break;
                             case CLIC:
                                 timerCommandeComplementaire.stop();
-                                lastActionMade.getParameters();
-                                int x = Integer.parseInt(lastActionMade.getParameters()[0]);
-                                int y = Integer.parseInt(lastActionMade.getParameters()[1]);
+//                                lastActionMade.getParameters();
+//                                int x = Integer.parseInt(lastActionMade.getParameters()[0]);
+//                                int y = Integer.parseInt(lastActionMade.getParameters()[1]);
+                                int x = lastActionMade.getReference().x;
+                                int y = lastActionMade.getReference().y;
 //                                System.out.println("DEPLACER FORME CETTE COULEUR");
                                 ivyControl.send("Palette:TesterPoint x=" + x + " y=" + y);
-                                lastActionMade.init();
+//                                lastActionMade.init();
                                 break;
                             case VOIX_ICI:
                                 break;
@@ -595,7 +611,8 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                                 break;
                             case CLIC:
                                 timerCommandeComplementaire.stop();
-                                lastActionMade.getParameters();
+//                                lastActionMade.getParameters();
+
                                 String x = lastActionMade.getParameters()[0];
                                 String y = lastActionMade.getParameters()[1];
 //                                System.out.println("CREER FORME ICI");
@@ -636,25 +653,30 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                                 break;
                             case CLIC:
                                 timerCommandeComplementaire.stop();
-                                lastActionMade.getParameters();
-                                x = lastActionMade.getParameters()[0];
-                                y = lastActionMade.getParameters()[1];
+//                                lastActionMade.getParameters();
+//                                x = lastActionMade.getParameters()[0];
+//                                y = lastActionMade.getParameters()[1];
+                                //getDestination().x
 //                                System.out.println("DEPLACER FORME ICI");
+                                x = lastActionMade.getDistanceX() + "";
+                                y = lastActionMade.getDistanceY() + "";
                                 forme.setX(x);
                                 forme.setY(y);
                                 lastActionMade.setActionEnCours(ActionEnum.VOIX_DEPLACER);
-                                lastActionMade.init();
+//                                lastActionMade.init();
                                 break;
                             case FORME_SELECTIONNEE:
                                 timerCommandeComplementaire.stop();
-                                lastActionMade.getParameters();
-                                x = lastActionMade.getParameters()[0];
-                                y = lastActionMade.getParameters()[1];
+//                                lastActionMade.getParameters();
+//                                x = lastActionMade.getParameters()[0];
+//                                y = lastActionMade.getParameters()[1];
 //                                System.out.println("DEPLACER FORME ICI");
+                                x = lastActionMade.getDistanceX() + "";
+                                y = lastActionMade.getDistanceY() + "";
                                 forme.setX(x);
                                 forme.setY(y);
                                 lastActionMade.setActionEnCours(ActionEnum.VOIX_DEPLACER);
-                                lastActionMade.init();
+//                                lastActionMade.init();
                                 break;
                             case VOIX_ICI:
                                 break;

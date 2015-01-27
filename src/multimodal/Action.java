@@ -5,10 +5,7 @@
  */
 package multimodal;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.awt.Point;
 
 /**
  *
@@ -16,92 +13,24 @@ import java.util.Map;
  */
 public class Action {
 
-//    private ModalEnum modal;
     private ActionEnum actionEnCours;
-//    private String command;
     private String parameters[];
+    private Point reference;
+    private Point destination;
     private boolean isComplete;
-//    private Map<ActionEnum, String> actionComplementaires;
 
     public Action() {
-//        setModal(ModalEnum.NONE);
-//        setCommand("");
-        parameters = new String[2];
-        parameters[0] = "";
-        parameters[1] = "";
-        actionEnCours = ActionEnum.NULL;
-//        actionComplementaires = new HashMap();
-//        fillActionComplementaires();
+        init();
     }
-
-//    public void fillActionComplementaires() {
-//        actionComplementaires.put(ActionEnum.VOIX_ICI, "clic");
-//        actionComplementaires.put(ActionEnum.VOIX_CETTECOULEUR, "clic");
-//        actionComplementaires.put(ActionEnum.COMMECELA, "cam");
-//    }
-
-//    public String getCommandeCorrespondant(ActionEnum action) {
-//        return actionComplementaires.get(action);
-//    }
-
-//    public List<ActionEnum> getActionCorrespondant(String commande) {
-//        List<ActionEnum> actionsCorrespondants = new ArrayList();
-//        for (ActionEnum action : actionComplementaires.keySet()) {
-//            //Si on est dans "CETTECOULEUR", on va s'attendre à retourner un clic
-//            if (actionEnCours.equals(action) && actionComplementaires.get(action).equals(commande)) {
-//                actionsCorrespondants.add(action);
-//            }
-//        }
-//        return actionsCorrespondants;
-//    }
-
-//    public void Action(ModalEnum m, String cmd) {
-//        setModal(m);
-//        setCommand(cmd);
-//    }
 
     public void init() {
         actionEnCours = ActionEnum.NULL;
         parameters = new String[2];
         parameters[0] = "";
         parameters[1] = "";
+        reference = new Point(0, 0);
+        destination = new Point(0, 0);
     }
-
-//    /**
-//     * @return the modal
-//     */
-//    public ModalEnum getModal() {
-//        return modal;
-//    }
-//
-//    /**
-//     * @param modal the modal to set
-//     */
-//    public void setModal(ModalEnum modal) {
-//        this.modal = modal;
-//    }
-//
-//    /**
-//     * @return the command
-//     */
-//    public String getCommand() {
-//        return command;
-//    }
-//
-//    /**
-//     * @param command the command to set
-//     */
-//    public void setCommand(String command) {
-//        this.command = command;
-//    }
-
-//    public void getComplementaryAction(String action) {
-//        //ici, rectangle, comme cela
-//    }
-//
-//    public void getComplementaryAction(ActionEnum actionMultimodale) {
-//        //clic, geste
-//    }
 
     public void setIsComplete(boolean set) {
         isComplete = set;
@@ -109,6 +38,15 @@ public class Action {
 
     public boolean isComplete() {
         return isComplete;
+    }
+
+    public boolean isDeplacementValide() {
+        System.out.println("Is deplacement valide ref =" + reference.x + " " + reference.y + " dest " + destination.x + destination.y);
+        if ((reference.x == 0 && reference.x == 0) || (destination.x == 0 && destination.y == 0)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public void setActionEnCours(ActionEnum actionEnCours) {
@@ -130,13 +68,38 @@ public class Action {
     }
 
     private void updateIsComplete() {
-        if(parameters == null) {
-            parameters = new String[2];
-        }
+//        if (parameters == null) {
+//            parameters = new String[2];
+//        }
         if (parameters[0] != null && !actionEnCours.equals(ActionEnum.NULL)) {
             setIsComplete(true);
         } else {
             setIsComplete(false);
         }
+    }
+
+    public Point getReference() {
+        return reference;
+    }
+
+    public void setReference(Point reference) {
+        this.reference = reference;
+    }
+
+    public Point getDestination() {
+        return destination;
+    }
+
+    public void setDestination(Point destination) {
+        this.destination = destination;
+
+    }
+
+    public int getDistanceX() {
+        return destination.x - reference.x;
+    }
+
+    public int getDistanceY() {
+        return destination.y - reference.y;
     }
 }
