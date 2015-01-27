@@ -45,7 +45,7 @@ public class IvyControl {
             send("Palette:DemanderInfo nom=" + args[0]);
         });
 
-        bus.bindMsg("^Palette:Info nom=(.*) couleurFond=(.*) couleurContour=(.*)", (IvyClient client, String[] args) -> {
+        bus.bindMsg("^Palette:Info nom=(.*) x=.* couleurFond=(.*) couleurContour=(.*)", (IvyClient client, String[] args) -> {
             System.out.println("Couleur FORME : " + args[1] + "   " + args[2]);
             if (args != null && args.length > 0) {
                 observer.paletteFormeInformationListener(args[0], args[1], args[2]);

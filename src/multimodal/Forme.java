@@ -39,7 +39,7 @@ public class Forme {
 
     public void updateIsComplete() {
         if (typeCommande.equals(Commande.DEPLACEMENT)) {
-            if (myForme.equals(FormeEnum.NOTHING) || name.equals("")) {
+            if (/*myForme.equals(FormeEnum.NOTHING) ||*/ name.equals("")) {
                 isComplete = false;
             } else {
                 isComplete = true;
@@ -173,7 +173,7 @@ public class Forme {
     }
 
     public String commandToMoveFormePatern() {
-        if (myForme != FormeEnum.NOTHING) {
+        if (/*myForme != FormeEnum.NOTHING*/ getName() != "") {
 
             return "Palette:DeplacerObjet nom=" + getName() + " x=" + getX() + " y=" + getY();
         } else {
