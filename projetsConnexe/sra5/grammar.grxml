@@ -85,7 +85,7 @@
     
     <rule id="forme">
         <one-of>
-            <item>rond</item>			
+            <item>ellipse</item>			
             <item>rectangle</item> 
         </one-of>
         <tag>out.text = meta.current().text;</tag>

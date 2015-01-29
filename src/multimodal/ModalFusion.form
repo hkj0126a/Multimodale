@@ -53,13 +53,8 @@
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="labelEtatTimer" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="jLabel13" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="labelTimerCompl" min="-2" max="-2" attributes="0"/>
-                              </Group>
                           </Group>
-                          <EmptySpace pref="174" max="32767" attributes="0"/>
+                          <EmptySpace pref="252" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="1" attributes="0">
                           <Component id="jLabel14" min="-2" max="-2" attributes="0"/>
@@ -86,12 +81,7 @@
                       <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="labelEtatTimer" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="jLabel13" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="labelTimerCompl" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel14" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -126,16 +116,6 @@
         <Component class="javax.swing.JLabel" name="labelEtatTimer">
           <Properties>
             <Property name="text" type="java.lang.String" value="jLabel13"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="jLabel13">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Timer commande compl&#xe9;mentaire actif:"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="labelTimerCompl">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="jLabel14"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel14">

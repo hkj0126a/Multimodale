@@ -12,9 +12,5 @@ package multimodal;
 public enum State {
     NOTHING, 
     CREER,
-    DEPLACER,
-    CREER_COLOR, 
-    CREER_POSITION,
-    DEPLACER_CHOISIR_FORME,
-    DEPLACER_CHOISIR_POSITION
+    DEPLACER
 }

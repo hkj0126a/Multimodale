@@ -39,7 +39,7 @@ public class Forme {
 
     public void updateIsComplete() {
         if (typeCommande.equals(Commande.DEPLACEMENT)) {
-            if (/*myForme.equals(FormeEnum.NOTHING) ||*/ name.equals("")) {
+            if (name.equals("") || (name.charAt(0) == 'R' && myForme == FormeEnum.ELLIPSE) || (name.charAt(0) == 'E' && myForme == FormeEnum.RECTANGLE) ) {
                 isComplete = false;
             } else {
                 isComplete = true;

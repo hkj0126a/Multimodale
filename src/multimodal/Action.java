@@ -41,7 +41,7 @@ public class Action {
     }
 
     public boolean isDeplacementValide() {
-        System.out.println("Is deplacement valide ref =" + reference.x + " " + reference.y + " dest " + destination.x + destination.y);
+        System.out.println("Is deplacement valide ref =" + reference.x + " " + reference.y + " dest " + destination.x + " " + destination.y);
         if ((reference.x == 0 && reference.x == 0) || (destination.x == 0 && destination.y == 0)) {
             return false;
         } else {
