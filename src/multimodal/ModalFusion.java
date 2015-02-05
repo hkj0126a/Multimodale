@@ -284,7 +284,8 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
 
     @Override
     public void cameraListener(String x, String y, String couleur) {
-        System.out.println("réception caméra " + x + y + couleur);
+//        System.out.println("réception caméra X= " + x + " Y= " + y + " couleur = "+ couleur);
+        forme.setBackgroundColor(couleur);
     }
 
     /* ******************************************************

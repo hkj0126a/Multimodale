@@ -96,44 +96,57 @@ public class MultipleJava3D extends JFrame implements ObserverJava3d {
     private String x,y,couleur;
     private Vector3f vecteurPosition;
     
-    public static void main(String[] args) {
-        try {
-            MultipleJava3D frame = new MultipleJava3D();
-
-            frame.setVisible(true);
-            Insets ins = frame.getInsets();
-            frame.setSize(320 + ins.left + ins.right, 240 + ins.top + ins.bottom);
-            frame.startCapture();
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    
+//    public static void main(String[] args) {
+//        try {
+//            MultipleJava3D frame = new MultipleJava3D();
+//
+//            frame.setVisible(true);
+//            Insets ins = frame.getInsets();
+//            frame.setSize(320 + ins.left + ins.right, 240 + ins.top + ins.bottom);
+//            frame.startCapture();
+//            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     // i_markers represents an ARCodeIndex  
     public void update(int i_markers, Transform3D i_transform3d) {
-        /*
-         * TODO:Please write your behavior operation code here.
-         * */
 //        System.out.println(" " + i_markers);
-        //if vecteurPosition != null, calcul distance vecteurPost avec celui du transform3d et mettre en x y
-        //vecteurPos = vecteurTransform
-        //penser à la réinitialisation du vecteurPos
-        i_transform3d.get(vecteurPosition);
+        
+        String deplacementX = "0";
+        String deplacementY = "0";
+        String couleur = "";
+        if(vecteurPosition.equals(new Vector3f(0,0,0))) {
+            i_transform3d.get(vecteurPosition);    
+        } else {            
+            Vector3f vecteurNouvellePosition = new Vector3f(0,0,0);
+            i_transform3d.get(vecteurNouvellePosition);    
+            int intDepX = (int) ((vecteurNouvellePosition.x - vecteurPosition.x) * 1000);
+            int intDepY = (int) ((vecteurNouvellePosition.y - vecteurPosition.y) * 1000);
+            deplacementX = Integer.toString(intDepX);
+            deplacementY = Integer.toString(intDepY);
+            vecteurPosition = vecteurNouvellePosition;
+        }       
+        
+        //déplacement dans tout les cas (l'utilisation des paramètres dépendra de l'état de la machine à état
         switch(i_markers) {
-            //Détection de Hiro = déplacement
+            //Détection de Hiro = couleur verte
             case 0:
-                setParamIvyMsg("0", "0", "");
+                couleur = "green";
                 break;
-            //Détection de Kanji = setCouleur Rouge
+            //Détection de Kanji = couleur Rouge
             case 1:
-                setParamIvyMsg("0", "0", "RED");
+                couleur = "red";
                 break;
             default:
                 break;
         }
+        setParamIvyMsg(deplacementX, deplacementY, couleur);
         try {
+            bus.sendMsg("Palette:DeplacerObjet nom=R6 x=" + x + " y=" + y);
             bus.sendMsg("CAMERA x=" + x + " y=" + y + " couleur=" + couleur);
         } catch (IvyException ex) {
             Logger.getLogger(MultipleJava3D.class.getName()).log(Level.SEVERE, null, ex);
@@ -151,7 +164,7 @@ public class MultipleJava3D extends JFrame implements ObserverJava3d {
         
         initIvyBus();
         setParamIvyMsg("","","");
-        
+        vecteurPosition = new Vector3f(0, 0, 0);        
         //NyARToolkitã�®æº–å‚™
         NyARCode ar_codes[];
 
