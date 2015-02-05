@@ -244,4 +244,9 @@ public class Icar extends javax.swing.JFrame implements GesteListener, ModalFusi
     public void sraListener(IvyClient client, String confidence, String voiceCommand) {
     }
 
+    @Override
+    public void cameraListener(String x, String y, String couleur) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }

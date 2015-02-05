@@ -7,13 +7,16 @@ package multimodal;
 
 import fr.dgac.ivy.IvyClient;
 import fr.dgac.ivy.IvyException;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
 import javax.swing.Timer;
 import multimodal.ivyControl.IvyControl;
+import multimodal.camera.MultipleJava3D;
 
 /**
  *
@@ -26,13 +29,14 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
     private Forme forme;
     private Action lastActionMade;
     private Timer timerCommandeTotale;
+    private MultipleJava3D cameraHandler;
 
     public ModalFusion() throws IvyException {
         initComponents();
         forme = new Forme();
         ivyControl = new IvyControl(this);
         lastActionMade = new Action();
-        System.out.println(lastActionMade.getActionEnCours() == null);
+        initCameraHandler();
         initTimer();
         updatePanel();
     }
@@ -276,6 +280,11 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                 break;
         }
         updatePanel();
+    }
+
+    @Override
+    public void cameraListener(String x, String y, String couleur) {
+        System.out.println("réception caméra " + x + y + couleur);
     }
 
     /* ******************************************************
@@ -579,6 +588,25 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
         labelFormeDerniereAction.setText(lastActionMade.getActionEnCours().toString());
         labelXParam.setText(lastActionMade.getParameters()[0]);
         labelYParam.setText(lastActionMade.getParameters()[1]);
+    }
+
+    /**
+     * *******************************************************************
+     * Ajout caméra
+     * *******************************************************************
+     */
+    private void initCameraHandler() {
+        try {
+            cameraHandler = new MultipleJava3D();
+            cameraHandler.setVisible(true);
+            Insets ins = cameraHandler.getInsets();
+            cameraHandler.setSize(320 + ins.left + ins.right, 240 + ins.top + ins.bottom);
+            cameraHandler.startCapture();
+            cameraHandler.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        } catch (Exception ex) {
+            Logger.getLogger(ModalFusion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
     /**

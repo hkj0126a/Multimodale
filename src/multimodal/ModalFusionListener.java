@@ -6,6 +6,7 @@
 package multimodal;
 
 import fr.dgac.ivy.IvyClient;
+import javax.media.j3d.Transform3D;
 
 /**
  *
@@ -16,4 +17,5 @@ public interface ModalFusionListener {
     public void sraListener(IvyClient client, String confidence, String voiceCommand);
     public void paletteMousePressedListener(String x, String y);
     public void paletteFormeInformationListener(String name, String backgroundColor, String strokeColor);
+    public void cameraListener(String x, String y, String couleur);
 }

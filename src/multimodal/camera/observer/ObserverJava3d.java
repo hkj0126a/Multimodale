@@ -1,4 +1,4 @@
-package observer;
+package multimodal.camera.observer;
 
 
 import javax.media.j3d.Transform3D;

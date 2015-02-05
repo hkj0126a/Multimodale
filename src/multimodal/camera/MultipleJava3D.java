@@ -1,3 +1,5 @@
+package multimodal.camera;
+
 /* 
  * PROJECT: NyARToolkit Java3d sample program.
  * --------------------------------------------------------------------------------
@@ -32,7 +34,6 @@ import javax.media.j3d.Background;
 import javax.media.j3d.BoundingSphere;
 import javax.media.j3d.BranchGroup;
 import javax.media.j3d.Canvas3D;
-import javax.media.j3d.HiResCoord;
 import javax.media.j3d.Locale;
 import javax.media.j3d.Node;
 import javax.media.j3d.PhysicalBody;
@@ -43,21 +44,22 @@ import javax.media.j3d.View;
 import javax.media.j3d.ViewPlatform;
 import javax.media.j3d.VirtualUniverse;
 import javax.swing.JFrame;
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import jp.nyatla.nyartoolkit.core.NyARCode;
 import jp.nyatla.nyartoolkit.java3d.utils.J3dNyARParam;
 import jp.nyatla.nyartoolkit.java3d.utils.NyARMultipleMarkerBehaviorHolder;
-import jp.nyatla.nyartoolkit.java3d.utils.NyARMultipleMarkerBehaviorListener;
-
-import com.sun.j3d.utils.geometry.ColorCube;
 import com.sun.j3d.utils.geometry.Cone;
 import com.sun.j3d.utils.geometry.Sphere;
 import com.sun.j3d.utils.universe.SimpleUniverse;
+import fr.dgac.ivy.Ivy;
+import fr.dgac.ivy.IvyException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.vecmath.AxisAngle4f;
-import observer.Observee;
-import observer.ObserverJava3d;
+import javax.vecmath.Vector3f;
+import multimodal.camera.observer.Observee;
+import multimodal.camera.observer.ObserverJava3d;
 
 /**
  * Java3Dã‚µãƒ³ãƒ—ãƒ«ãƒ—ãƒ­ã‚°ãƒ©ãƒ 
@@ -89,6 +91,11 @@ public class MultipleJava3D extends JFrame implements ObserverJava3d {
     private Locale locale;
     private VirtualUniverse universe;
 
+    //Ivy
+    private Ivy bus;
+    private String x,y,couleur;
+    private Vector3f vecteurPosition;
+    
     public static void main(String[] args) {
         try {
             MultipleJava3D frame = new MultipleJava3D();
@@ -109,8 +116,28 @@ public class MultipleJava3D extends JFrame implements ObserverJava3d {
         /*
          * TODO:Please write your behavior operation code here.
          * */
-        System.out.println(" " + i_markers);
-
+//        System.out.println(" " + i_markers);
+        //if vecteurPosition != null, calcul distance vecteurPost avec celui du transform3d et mettre en x y
+        //vecteurPos = vecteurTransform
+        //penser à la réinitialisation du vecteurPos
+        i_transform3d.get(vecteurPosition);
+        switch(i_markers) {
+            //Détection de Hiro = déplacement
+            case 0:
+                setParamIvyMsg("0", "0", "");
+                break;
+            //Détection de Kanji = setCouleur Rouge
+            case 1:
+                setParamIvyMsg("0", "0", "RED");
+                break;
+            default:
+                break;
+        }
+        try {
+            bus.sendMsg("CAMERA x=" + x + " y=" + y + " couleur=" + couleur);
+        } catch (IvyException ex) {
+            Logger.getLogger(MultipleJava3D.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     // Starting the Behaviour
@@ -121,7 +148,10 @@ public class MultipleJava3D extends JFrame implements ObserverJava3d {
 
     public MultipleJava3D() throws Exception {
         super("Java3D Example NyARToolkit-Java3D - M2Pro IHM");
-
+        
+        initIvyBus();
+        setParamIvyMsg("","","");
+        
         //NyARToolkitã�®æº–å‚™
         NyARCode ar_codes[];
 
@@ -228,7 +258,7 @@ public class MultipleJava3D extends JFrame implements ObserverJava3d {
 //
         observee.addObserver(this);
 //        observee.addObserver(frameCoord);
-        
+
 //        AppCurseur3d curseur = new AppCurseur3d(320, 240, 800, 800);
 //        observee.addObserver(curseur);
     }
@@ -272,5 +302,20 @@ public class MultipleJava3D extends JFrame implements ObserverJava3d {
         tgRotate.addChild(tg);
         tg.addChild(new Cone(largeur, hauteur));
         return tgRotate;
+    }
+
+    private void initIvyBus() {
+        bus = new Ivy("IvyControler", "IvyControler Ready", null);
+        try {
+            bus.start("127.255.255.255:2010");
+        } catch (IvyException ex) {
+            Logger.getLogger(MultipleJava3D.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void setParamIvyMsg(String paramX, String paramY, String col) {
+        x = paramX;
+        y = paramY;
+        couleur = col;        
     }
 }

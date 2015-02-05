@@ -16,7 +16,8 @@ public class IvyControl {
         sraBinder();
         icarBinder();
         paletteBinder();
-
+        cameraBinder();
+        
         bus.start("127.255.255.255:2010");
     }
 
@@ -57,6 +58,14 @@ public class IvyControl {
             System.out.println("RESULTAT CLIC : " + args[0] + "  " + args[1]);
             if (args != null && args.length > 0) {
                 observer.paletteMousePressedListener(args[0], args[1]);
+            }
+        });
+    }
+     
+    private void cameraBinder() throws IvyException {
+        bus.bindMsg("^CAMERA x=(.*) y=(.*) couleur=(.*)", (IvyClient client, String[] args) -> {
+            if (args != null && args.length > 0) {
+                observer.cameraListener(args[0], args[1], args[2]);
             }
         });
     }
