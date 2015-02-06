@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 import multimodal.ivyControl.IvyControl;
-import multimodal.camera.MultipleJava3D;
+import multimodal.camera.CameraHandler;
 
 /**
  *
@@ -29,7 +29,7 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
     private Forme forme;
     private Action lastActionMade;
     private Timer timerCommandeTotale;
-    private MultipleJava3D cameraHandler;
+    private CameraHandler cameraHandler;
 
     public ModalFusion() throws IvyException {
         initComponents();
@@ -648,7 +648,7 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
      */
     private void initCameraHandler() {
         try {
-            cameraHandler = new MultipleJava3D();
+            cameraHandler = new CameraHandler();
             cameraHandler.setVisible(true);
             Insets ins = cameraHandler.getInsets();
             cameraHandler.setSize(320 + ins.left + ins.right, 240 + ins.top + ins.bottom);

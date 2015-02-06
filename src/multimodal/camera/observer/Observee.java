@@ -17,23 +17,23 @@ import jp.nyatla.nyartoolkit.java3d.utils.NyARMultipleMarkerBehaviorListener;
  */
 public class Observee implements NyARMultipleMarkerBehaviorListener {
 
-    private List<ObserverJava3d> observers;
+    private List<ObserverCamera> observers;
 
     public Observee() {
         observers = new ArrayList();
     }
     
-    public void addObserver(ObserverJava3d ob) {
+    public void addObserver(ObserverCamera ob) {
         observers.add(ob);
     }
     
-    public void removeObserver(ObserverJava3d ob) {
+    public void removeObserver(ObserverCamera ob) {
         observers.remove(ob);
     }
 
     @Override
     public void onUpdate(int i_marker, Transform3D td) {
-        for(ObserverJava3d o : observers) {
+        for(ObserverCamera o : observers) {
             o.update(i_marker, td);
         }
     }

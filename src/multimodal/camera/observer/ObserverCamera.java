@@ -12,6 +12,6 @@ import javax.media.j3d.Transform3D;
  *
  * @author hakje
  */
-public interface ObserverJava3d {
+public interface ObserverCamera {
     public abstract void update(int i_marker, Transform3D td);
 }
