@@ -124,14 +124,15 @@ public class MultipleJava3D extends JFrame implements ObserverJava3d {
         } else {            
             Vector3f vecteurNouvellePosition = new Vector3f(0,0,0);
             i_transform3d.get(vecteurNouvellePosition);    
-            int intDepX = (int) ((vecteurNouvellePosition.x - vecteurPosition.x) * 1000);
-            int intDepY = (int) ((vecteurNouvellePosition.y - vecteurPosition.y) * 1000);
+            int intDepX = (int) ((- vecteurNouvellePosition.x + vecteurPosition.x) * 1000);
+            int intDepY = (int) ((- vecteurNouvellePosition.y + vecteurPosition.y) * 1000);
             deplacementX = Integer.toString(intDepX);
             deplacementY = Integer.toString(intDepY);
             vecteurPosition = vecteurNouvellePosition;
         }       
         
         //déplacement dans tout les cas (l'utilisation des paramètres dépendra de l'état de la machine à état
+        //Faire un état "Déplacement caméra" dans Modal fusion pour permettre le déplacement 'fluide'?
         switch(i_markers) {
             //Détection de Hiro = couleur verte
             case 0:
@@ -145,8 +146,7 @@ public class MultipleJava3D extends JFrame implements ObserverJava3d {
                 break;
         }
         setParamIvyMsg(deplacementX, deplacementY, couleur);
-        try {
-            bus.sendMsg("Palette:DeplacerObjet nom=R6 x=" + x + " y=" + y);
+        try {            
             bus.sendMsg("CAMERA x=" + x + " y=" + y + " couleur=" + couleur);
         } catch (IvyException ex) {
             Logger.getLogger(MultipleJava3D.class.getName()).log(Level.SEVERE, null, ex);
@@ -230,18 +230,6 @@ public class MultipleJava3D extends JFrame implements ObserverJava3d {
 
         TransformGroup transformGroups[];
         transformGroups = new TransformGroup[2];
-
-        //Hiro
-        transformGroups[0] = new TransformGroup();
-        transformGroups[0].setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        transformGroups[0].addChild(createSceneGraph0());
-        root.addChild(transformGroups[0]);
-
-        //Kanji
-        transformGroups[1] = new TransformGroup();
-        transformGroups[1].setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        transformGroups[1].addChild(createSceneGraphKanji());
-        root.addChild(transformGroups[1]);
 
         //NyARToolkitã�®Behaviorã‚’ä½œã‚‹ã€‚(ãƒžãƒ¼ã‚«ãƒ¼ã‚µã‚¤ã‚ºã�¯ãƒ¡ãƒ¼ãƒˆãƒ«ã�§æŒ‡å®šã�™ã‚‹ã�“ã�¨)
         nya_behavior = new NyARMultipleMarkerBehaviorHolder(ar_param, 30f, ar_codes, marker_width, 2);

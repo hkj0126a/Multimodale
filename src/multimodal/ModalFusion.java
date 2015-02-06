@@ -98,8 +98,6 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                 timerCommandeTotale.restart();
                 break;
             case CREER:
-//                state = State.NOTHING;
-//                updateState();
                 state = State.CREER;
                 computeGestureCommand(formeName);
                 timerCommandeTotale.restart();
@@ -197,7 +195,10 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                         lastActionMade.setActionEnCours(ActionEnum.CLIC);
                         pFinal = new Point(Integer.parseInt(x), Integer.parseInt(y));
                         System.out.println("stock dest");
-                        lastActionMade.setDestination(pFinal);
+                        lastActionMade.setReference(pFinal);
+                        if (forme.getName() == "") {
+                            ivyControl.send("Palette:TesterPoint x=" + pFinal.x + " y=" + pFinal.y);
+                        }
                         break;
                     case VOIX_ICI:
                         lastActionMade.setActionEnCours(ActionEnum.CLIC);
@@ -206,6 +207,9 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
                         System.out.println("stock dest");
                         lastActionMade.setDestination(pFinal);
                         forme.setPosition(lastActionMade.getDistanceX() + "", lastActionMade.getDistanceY() + "");
+                        if (forme.getName() == "") {
+                            ivyControl.send("Palette:TesterPoint x=" + pFinal.x + " y=" + pFinal.y);
+                        }
                         break;
                     case VOIX_DEPLACER:
                         lastActionMade.setActionEnCours(ActionEnum.CLIC);
@@ -243,8 +247,8 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
             case CREER:
                 state = State.CREER;
                 timerCommandeTotale.restart();
-                forme.setBackgroundColor(computeRGBToString(backgroundColor));
-                forme.setStrokeColor(computeRGBToString(strokeColor));
+                forme.setBackgroundColor(backgroundColor);
+                forme.setStrokeColor(strokeColor);
                 break;
             case DEPLACER:
                 state = State.DEPLACER;
@@ -285,19 +289,65 @@ public class ModalFusion extends javax.swing.JFrame implements ModalFusionListen
     @Override
     public void cameraListener(String x, String y, String couleur) {
 //        System.out.println("réception caméra X= " + x + " Y= " + y + " couleur = "+ couleur);
-        forme.setBackgroundColor(couleur);
+        switch (state) {
+            case NOTHING:
+                break;
+            case CREER:
+                forme.setBackgroundColor(couleur);
+                break;
+            case DEPLACER:
+                switch (lastActionMade.getActionEnCours()) {
+                    case NULL:
+                        break;
+                    case GESTE:
+                        break;
+                    case CAMMOVE:
+                        timerCommandeTotale.restart();
+                        ivyControl.send("Palette:DeplacerObjet nom=" + forme.getName() + " x=" + x + " y=" + y);
+                        break;
+                    case CAMCOLOR:
+                        break;
+                    case CLIC:
+                        break;
+                    case VOIX_ICI:
+                        break;
+                    case VOIX_UNECOULEUR:
+                        break;
+                    case VOIX_CETTECOULEUR:
+                        break;
+                    case TIMER:
+                        break;
+                    case VOIX_DEPLACER:
+                        break;
+                    case COMMECELA:
+                        break;
+                    case CHOIX_FORME:
+                        break;
+                    case FORME_SELECTIONNEE:
+                        timerCommandeTotale.restart();
+                        lastActionMade.setActionEnCours(ActionEnum.CAMMOVE);
+                        ivyControl.send("Palette:DeplacerObjet nom=" + forme.getName() + " x=" + x + " y=" + y);
+                        break;
+                    default:
+                        throw new AssertionError(lastActionMade.getActionEnCours().name());
+
+                }
+                break;
+            default:
+                throw new AssertionError(state.name());
+        }
     }
 
     /* ******************************************************
      ******************COMPUTE METHODS
      *  ******************************************************/
-    private String computeRGBToString(String rgb) {
-        String rgbTab[] = rgb.split("=");
-        String rgbParsed = rgbTab[1].split(",")[0] + ":" + rgbTab[2].split(",")[0] + ":" + rgbTab[3].split("]")[0];
-        System.out.println("Couleur FORME PARSED: " + rgbParsed);
-        return rgbParsed;
-    }
-
+//    private String computeRGBToString(String rgb) {
+//        System.out.println("************ Compute RGB to string " + rgb);
+////        String rgbTab[] = rgb.split("=");
+////        String rgbParsed = rgbTab[1].split(",")[0] + ":" + rgbTab[2].split(",")[0] + ":" + rgbTab[3].split("]")[0];
+////        System.out.println("Couleur FORME PARSED: " + rgbParsed);
+//        return rgb;
+//    }
     private void computeGestureCommand(String formeName) {
 //        System.out.println("Création d'un " + formeName);
         switch (formeName) {
